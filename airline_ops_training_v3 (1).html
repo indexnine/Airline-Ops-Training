@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Airline Operations Basics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#090E1A;--surface:#101827;--surface2:#162035;--surface3:#1C2A46;
+  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+  --blue:#3B82F6;--blue2:#60A5FA;--blue3:#93C5FD;
+  --teal:#14B8A6;--teal2:#5EEAD4;
+  --amber:#F59E0B;--amber2:#FCD34D;
+  --rose:#F43F5E;--rose2:#FB7185;
+  --violet:#8B5CF6;--violet2:#A78BFA;
+  --green:#10B981;--green2:#34D399;
+  --ink:#E2E8F5;--ink2:#94A3B8;--ink3:#4B5A70;
+  --r-sm:6px;--r-md:10px;--r-lg:16px;--r-xl:22px;
+  --font-h:'Syne',sans-serif;
+  --font-b:'Instrument Sans',sans-serif;
+  --font-m:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-b);background:var(--bg);color:var(--ink);line-height:1.6;min-height:100vh}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:var(--bg)}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 50% at 65% -5%,rgba(59,130,246,0.18) 0%,transparent 65%),radial-gradient(ellipse 40% 40% at 5% 85%,rgba(20,184,166,0.09) 0%,transparent 55%)}
+.hero-grid{position:absolute;inset:0;background-image:radial-gradient(rgba(59,130,246,0.18) 1px,transparent 1px);background-size:30px 30px;mask-image:radial-gradient(ellipse 60% 60% at 65% 20%,black,transparent 75%)}
+.hero-strip{position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--blue) 35%,var(--teal) 65%,transparent)}
+.hero-inner{position:relative;max-width:940px;margin:0 auto;padding:64px 40px 52px}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.28);border-radius:20px;padding:5px 14px 5px 10px;font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue3);margin-bottom:22px}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--blue);animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+.hero h1{font-family:var(--font-h);font-size:clamp(34px,5.5vw,58px);font-weight:800;line-height:1.06;color:#fff;letter-spacing:-0.03em;margin-bottom:14px}
+.hero h1 .c1{color:var(--blue2)}.hero h1 .c2{color:var(--teal2)}
+.hero-sub{font-size:15px;color:var(--ink2);max-width:560px;margin-bottom:12px;line-height:1.7}
+.hero-audience{display:inline-flex;align-items:center;gap:7px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.22);border-radius:var(--r-sm);padding:6px 14px;font-size:12px;color:var(--amber2);font-weight:500;margin-bottom:34px}
+.hero-stats{display:flex;gap:32px;flex-wrap:wrap}
+.h-stat-v{font-family:var(--font-h);font-size:26px;font-weight:700;color:#fff;line-height:1}
+.h-stat-l{font-size:11px;color:var(--ink3);margin-top:3px;text-transform:uppercase;letter-spacing:0.07em}
+.h-divider{width:1px;background:var(--border2);align-self:stretch}
+
+/* PROGRESS BAR */
+.prog-bar{background:rgba(16,24,39,0.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200}
+.prog-inner{max-width:940px;margin:0 auto;padding:0 40px;display:flex;align-items:center;gap:16px}
+.prog-label{font-size:12px;color:var(--ink3);padding:14px 0;white-space:nowrap;min-width:160px}
+.prog-label strong{color:var(--ink)}
+.prog-track{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:2px;transition:width 0.5s ease;width:0}
+.prog-pct{font-family:var(--font-m);font-size:12px;color:var(--blue2);min-width:32px;text-align:right}
+
+/* TABS */
+.tabs-wrap{background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.tabs-wrap::-webkit-scrollbar{display:none}
+.tabs-row{max-width:940px;margin:0 auto;padding:0 40px;display:flex}
+.tab-btn{display:flex;align-items:center;gap:8px;padding:14px 16px;font-size:11.5px;font-weight:600;font-family:var(--font-h);color:var(--ink3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all 0.18s;white-space:nowrap;margin-bottom:-1px;letter-spacing:0.04em;text-transform:uppercase}
+.tab-btn:hover{color:var(--ink);background:rgba(255,255,255,0.02)}
+.tab-btn.active{color:var(--blue2);border-bottom-color:var(--blue)}
+.tab-btn.done{color:var(--green2)}
+.tab-btn.done .t-num{background:rgba(16,185,129,0.15);color:var(--green2)}
+.t-num{width:20px;height:20px;border-radius:50%;background:var(--surface3);font-size:10px;font-weight:700;font-family:var(--font-m);display:inline-flex;align-items:center;justify-content:center;color:var(--ink3);transition:all 0.18s;flex-shrink:0}
+.tab-btn.active .t-num{background:rgba(59,130,246,0.2);color:var(--blue2)}
+
+/* MAIN */
+.main{max-width:940px;margin:0 auto;padding:40px 40px 100px}
+.section-panel{display:none}
+.section-panel.active{display:block;animation:fadeUp 0.3s ease}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* MODULE HEADER */
+.mod-header{margin-bottom:30px}
+.mod-eyebrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.mod-tag{font-family:var(--font-m);font-size:10px;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;padding:3px 10px;border-radius:4px}
+.tag-blue{background:rgba(59,130,246,0.12);color:var(--blue3);border:1px solid rgba(59,130,246,0.22)}
+.tag-teal{background:rgba(20,184,166,0.12);color:var(--teal2);border:1px solid rgba(20,184,166,0.22)}
+.tag-amber{background:rgba(245,158,11,0.12);color:var(--amber2);border:1px solid rgba(245,158,11,0.22)}
+.tag-violet{background:rgba(139,92,246,0.12);color:var(--violet2);border:1px solid rgba(139,92,246,0.22)}
+.tag-rose{background:rgba(244,63,94,0.12);color:var(--rose2);border:1px solid rgba(244,63,94,0.22)}
+.tag-green{background:rgba(16,185,129,0.12);color:var(--green2);border:1px solid rgba(16,185,129,0.22)}
+.mod-rule{flex:1;height:1px;background:var(--border)}
+.mod-title{font-family:var(--font-h);font-size:26px;font-weight:700;color:#fff;letter-spacing:-0.02em;margin-bottom:8px}
+.mod-desc{font-size:14px;color:var(--ink2);line-height:1.7;max-width:660px}
+
+/* KEY CONCEPT BOX */
+.kc-box{background:linear-gradient(135deg,rgba(59,130,246,0.07),rgba(20,184,166,0.05));border:1px solid rgba(59,130,246,0.18);border-radius:var(--r-lg);padding:22px 26px;margin-bottom:26px;position:relative;overflow:hidden}
+.kc-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--blue),var(--teal))}
+.kc-label{font-family:var(--font-m);font-size:10px;font-weight:500;letter-spacing:0.12em;text-transform:uppercase;color:var(--blue3);margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.kc-label::after{content:'';flex:1;height:1px;background:rgba(59,130,246,0.15)}
+.kc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.kc-item{display:flex;align-items:flex-start;gap:9px;padding:10px 12px;background:rgba(255,255,255,0.03);border-radius:var(--r-md);border:1px solid rgba(255,255,255,0.05)}
+.kc-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.kc-text{font-size:12px;color:var(--ink2);line-height:1.5}
+.kc-text strong{color:var(--ink);font-weight:600;display:block;margin-bottom:1px;font-size:12px}
+
+/* EXPANDABLE BLOCKS */
+.block{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);margin-bottom:14px;overflow:hidden;transition:border-color 0.2s,box-shadow 0.2s}
+.block:hover{border-color:var(--border2)}
+.block.open{border-color:rgba(59,130,246,0.25);box-shadow:0 0 0 1px rgba(59,130,246,0.08),0 8px 32px rgba(0,0,0,0.3)}
+.block-hdr{display:flex;align-items:center;gap:14px;padding:18px 22px;cursor:pointer;user-select:none}
+.b-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.bi-blue{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2)}
+.bi-teal{background:rgba(20,184,166,0.12);border:1px solid rgba(20,184,166,0.2)}
+.bi-amber{background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.2)}
+.bi-violet{background:rgba(139,92,246,0.12);border:1px solid rgba(139,92,246,0.2)}
+.bi-rose{background:rgba(244,63,94,0.12);border:1px solid rgba(244,63,94,0.2)}
+.bi-green{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2)}
+.b-title{font-family:var(--font-h);font-size:15px;font-weight:700;color:#fff;letter-spacing:-0.01em}
+.b-sub{font-size:12px;color:var(--ink3);margin-top:2px}
+.b-chev{margin-left:auto;font-size:18px;color:var(--ink3);transition:transform 0.3s;flex-shrink:0}
+.block.open .b-chev{transform:rotate(180deg);color:var(--blue2)}
+.b-body{max-height:0;overflow:hidden;transition:max-height 0.45s cubic-bezier(0.4,0,0.2,1)}
+.block.open .b-body{max-height:4000px}
+.b-inner{padding:0 22px 22px;border-top:1px solid var(--border);margin:0 4px}
+
+/* CONTENT */
+.c-intro{font-size:13px;color:var(--ink2);line-height:1.75;padding:14px 0;border-bottom:1px solid var(--border);margin-bottom:14px}
+.s-head{font-family:var(--font-h);font-size:12px;font-weight:700;color:var(--ink);letter-spacing:0.05em;text-transform:uppercase;margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.s-head::after{content:'';flex:1;height:1px;background:var(--border)}
+ul.blist{list-style:none;display:flex;flex-direction:column;gap:7px;margin-bottom:14px}
+ul.blist li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--ink2);line-height:1.6}
+ul.blist li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--blue);flex-shrink:0;margin-top:7px}
+ul.blist.teal li::before{background:var(--teal)}
+ul.blist.amber li::before{background:var(--amber)}
+ul.blist.violet li::before{background:var(--violet)}
+ul.blist.rose li::before{background:var(--rose)}
+ul.blist.green li::before{background:var(--green)}
+ul.blist li strong{color:var(--ink);font-weight:600}
+
+.callout{display:flex;gap:11px;align-items:flex-start;padding:12px 16px;border-radius:var(--r-md);font-size:12.5px;line-height:1.65;margin:12px 0}
+.callout-ico{font-size:15px;flex-shrink:0;margin-top:1px}
+.c-warn{background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.18);color:#C68B00}
+.c-info{background:rgba(59,130,246,0.07);border:1px solid rgba(59,130,246,0.15);color:var(--blue3)}
+.c-danger{background:rgba(244,63,94,0.08);border:1px solid rgba(244,63,94,0.18);color:var(--rose2)}
+.c-success{background:rgba(16,185,129,0.08);border:1px solid rgba(16,185,129,0.18);color:var(--green2)}
+.callout strong{font-weight:600}
+
+/* TERMINOLOGY GRID */
+.term-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:10px;margin-bottom:14px}
+.term-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:12px 14px;transition:border-color 0.2s}
+.term-card:hover{border-color:rgba(59,130,246,0.35)}
+.term-abbr{font-family:var(--font-m);font-size:11px;color:var(--blue2);background:rgba(59,130,246,0.1);padding:2px 8px;border-radius:4px;display:inline-block;margin-bottom:5px}
+.term-name{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:3px}
+.term-desc{font-size:12px;color:var(--ink3);line-height:1.5}
+
+/* WORKFLOW STEPS */
+.wf-steps{display:flex;flex-direction:column;gap:0;position:relative;margin:14px 0}
+.wf-steps::before{content:'';position:absolute;left:19px;top:22px;bottom:22px;width:2px;background:linear-gradient(180deg,var(--blue),var(--teal));border-radius:1px}
+.wf-step{display:flex;gap:16px;align-items:flex-start;padding-bottom:22px}
+.wf-step:last-child{padding-bottom:0}
+.wf-n{width:40px;height:40px;border-radius:50%;background:var(--surface2);border:2px solid var(--blue);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:11px;font-weight:500;color:var(--blue2);flex-shrink:0;position:relative;z-index:1}
+.wf-c{padding-top:8px;flex:1}
+.wf-title{font-size:13px;font-weight:600;color:#fff;margin-bottom:4px}
+.wf-desc{font-size:12.5px;color:var(--ink2);line-height:1.65}
+.wf-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.wf-tag{font-family:var(--font-m);font-size:10px;padding:2px 7px;border-radius:3px;background:rgba(59,130,246,0.1);color:var(--blue3);border:1px solid rgba(59,130,246,0.15)}
+.wf-tag.t{background:rgba(20,184,166,0.1);color:var(--teal2);border-color:rgba(20,184,166,0.15)}
+.wf-tag.a{background:rgba(245,158,11,0.1);color:var(--amber2);border-color:rgba(245,158,11,0.15)}
+
+/* QA BOX */
+.qa-box{background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);border-radius:var(--r-lg);padding:18px 22px;margin-top:18px}
+.qa-title{font-family:var(--font-h);font-size:12px;font-weight:700;color:var(--violet2);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:11px;display:flex;align-items:center;gap:8px}
+.qa-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.qa-list li{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--ink2);line-height:1.55}
+.qa-list li::before{content:'TC';font-family:var(--font-m);font-size:9px;font-weight:500;color:var(--violet2);background:rgba(139,92,246,0.1);padding:1px 5px;border-radius:3px;flex-shrink:0;margin-top:2px}
+
+/* COMPLIANCE TABLE */
+.comp-table{width:100%;border-collapse:collapse;font-size:12.5px;margin:12px 0}
+.comp-table th{text-align:left;padding:9px 13px;background:var(--surface2);color:var(--ink3);font-weight:600;font-family:var(--font-m);font-size:10px;text-transform:uppercase;letter-spacing:0.07em;border-bottom:1px solid var(--border)}
+.comp-table td{padding:10px 13px;border-bottom:1px solid var(--border);color:var(--ink2);vertical-align:top;line-height:1.5}
+.comp-table tr:last-child td{border-bottom:none}
+.comp-table tr:hover td{background:rgba(255,255,255,0.02)}
+.comp-table td:first-child{font-family:var(--font-m);font-size:10.5px;color:var(--blue2);white-space:nowrap}
+
+/* REFERENCES */
+.ref-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:9px;margin:12px 0 24px}
+.ref-card{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-md);padding:13px 15px;display:flex;gap:11px;align-items:flex-start;cursor:pointer;text-decoration:none;transition:all 0.2s}
+.ref-card:hover{border-color:rgba(59,130,246,0.4);transform:translateY(-1px);box-shadow:0 4px 14px rgba(59,130,246,0.1)}
+.ref-icon{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ri-yt{background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2)}
+.ri-web{background:rgba(59,130,246,0.12);border:1px solid rgba(59,130,246,0.2)}
+.ri-doc{background:rgba(16,185,129,0.12);border:1px solid rgba(16,185,129,0.2)}
+.ref-text strong{display:block;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:2px}
+.ref-text span{font-size:11px;color:var(--ink3)}
+.ref-url{font-family:var(--font-m);font-size:10px;color:var(--blue3);margin-top:3px;word-break:break-all}
+
+/* QUIZ */
+.quiz-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-xl);overflow:hidden;margin-top:32px;box-shadow:0 8px 32px rgba(0,0,0,0.35)}
+.quiz-hd{background:linear-gradient(135deg,var(--surface2),var(--surface3));padding:20px 26px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border)}
+.quiz-hd-title{font-family:var(--font-h);font-size:16px;font-weight:700;color:#fff}
+.quiz-hd-sub{font-size:11px;color:var(--ink3);margin-top:2px;font-family:var(--font-m)}
+.q-badge{background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.22);border-radius:20px;padding:5px 14px;font-family:var(--font-m);font-size:12px;color:var(--blue2)}
+.quiz-bd{padding:26px}
+.q-prog-row{display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.q-prog-track{flex:1;height:3px;background:var(--surface3);border-radius:2px;overflow:hidden}
+.q-prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));border-radius:2px;transition:width 0.3s}
+.q-prog-lbl{font-family:var(--font-m);font-size:11px;color:var(--ink3);white-space:nowrap}
+.quiz-q{font-family:var(--font-h);font-size:15px;font-weight:600;color:#fff;margin-bottom:16px;line-height:1.5}
+.quiz-opts{display:flex;flex-direction:column;gap:8px}
+.q-opt{padding:11px 15px;border:1px solid var(--border);border-radius:var(--r-md);font-size:13px;color:var(--ink2);font-family:var(--font-b);background:var(--surface2);cursor:pointer;text-align:left;transition:all 0.15s;display:flex;align-items:center;gap:11px}
+.q-opt:hover:not(.answered){border-color:var(--blue);color:var(--ink);background:rgba(59,130,246,0.06)}
+.q-letter{width:23px;height:23px;border-radius:6px;background:var(--surface3);display:flex;align-items:center;justify-content:center;font-family:var(--font-m);font-size:10px;flex-shrink:0;color:var(--ink3);transition:all 0.15s}
+.q-opt:hover:not(.answered) .q-letter{background:rgba(59,130,246,0.2);color:var(--blue2)}
+.q-opt.correct{border-color:var(--green);background:rgba(16,185,129,0.07);color:var(--green2)}
+.q-opt.correct .q-letter{background:var(--green);color:#fff}
+.q-opt.wrong{border-color:var(--rose);background:rgba(244,63,94,0.07);color:var(--rose2)}
+.q-opt.wrong .q-letter{background:var(--rose);color:#fff}
+.q-opt.answered{cursor:default}
+.q-fb{display:none;margin-top:13px;padding:13px 15px;background:var(--surface2);border-radius:var(--r-md);font-size:13px;color:var(--ink2);line-height:1.65;border-left:3px solid var(--blue)}
+.q-fb.show{display:block}
+.q-actions{display:flex;justify-content:flex-end;margin-top:18px}
+.btn-next{padding:10px 22px;background:linear-gradient(135deg,var(--blue),#2563EB);color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:600;font-family:var(--font-h);cursor:pointer;display:none;transition:opacity 0.15s;letter-spacing:0.02em}
+.btn-next:hover{opacity:0.88}
+.btn-next.show{display:block}
+.quiz-done{display:none;text-align:center;padding:30px}
+.quiz-done.show{display:block}
+.done-emoji{font-size:44px;margin-bottom:10px}
+.done-score{font-family:var(--font-h);font-size:44px;font-weight:800;color:#fff}
+.done-lbl{font-size:13px;color:var(--ink3);margin-bottom:18px;font-family:var(--font-m)}
+.done-bar-wrap{height:7px;background:var(--surface3);border-radius:4px;overflow:hidden;margin-bottom:18px}
+.done-bar{height:100%;border-radius:4px;transition:width 0.6s}
+.done-msg{font-size:14px;color:var(--ink2);margin-bottom:22px;line-height:1.6;max-width:380px;margin-left:auto;margin-right:auto}
+.btn-retry{padding:10px 22px;border:1px solid var(--border2);background:transparent;border-radius:var(--r-md);font-size:13px;font-weight:600;font-family:var(--font-h);cursor:pointer;color:var(--ink2);transition:all 0.15s}
+.btn-retry:hover{border-color:var(--blue);color:var(--blue2)}
+
+/* MODULE FOOTER */
+.mod-footer{display:flex;align-items:center;justify-content:space-between;padding:18px 0 0;margin-top:28px;border-top:1px solid var(--border);flex-wrap:wrap;gap:12px}
+.footer-note{font-size:12px;color:var(--ink3)}
+.btn-done{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:linear-gradient(135deg,rgba(15,43,76,0.9),rgba(10,59,107,0.9));color:var(--blue3);border:1px solid rgba(59,130,246,0.3);border-radius:var(--r-md);font-size:13px;font-weight:600;font-family:var(--font-h);cursor:pointer;transition:all 0.15s}
+.btn-done:hover{border-color:var(--blue);background:linear-gradient(135deg,rgba(10,59,107,0.9),rgba(28,42,70,0.9))}
+.btn-done.done{background:rgba(16,185,129,0.1);color:var(--green2);border-color:rgba(16,185,129,0.25);cursor:default}
+
+@media(max-width:640px){
+  .hero-inner,.main,.tabs-row,.prog-inner{padding-left:20px;padding-right:20px}
+  .quiz-hd,.quiz-bd{padding:16px 18px}
+  .b-inner{padding:0 14px 18px}
+  .kc-grid{grid-template-columns:1fr}
+  .term-grid{grid-template-columns:1fr}
+  .ref-grid{grid-template-columns:1fr}
+  .comp-table{display:block;overflow-x:auto}
+}
+</style>
+</head>
+<body>
+<!-- HERO -->
+<header class="hero">
+  <div class="hero-bg"></div><div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-badge"><span class="badge-dot"></span>Airline Operations Training</div>
+    <h1>Airline <span class="c1">Operations</span><br><span class="c2">Basics</span></h1>
+    <p class="hero-sub">A comprehensive knowledge baseline covering airline industry structure, compliance frameworks, IT systems, operational workflows, and key business rules.</p>
+    <div class="hero-stats">
+      <div><div class="h-stat-v">7</div><div class="h-stat-l">Modules</div></div>
+      <div class="h-divider"></div>
+      <div><div class="h-stat-v">35+</div><div class="h-stat-l">Concepts</div></div>
+      <div class="h-divider"></div>
+      <div><div class="h-stat-v">35</div><div class="h-stat-l">Quiz Questions</div></div>
+      <div class="h-divider"></div>
+      <div><div class="h-stat-v">~90 min</div><div class="h-stat-l">Est. Time</div></div>
+    </div>
+  </div>
+  <div class="hero-strip"></div>
+</header>
+
+<!-- PROGRESS -->
+<div class="prog-bar">
+  <div class="prog-inner">
+    <div class="prog-label"><strong id="done-count">0</strong> of 7 modules completed</div>
+    <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="prog-pct" id="prog-pct">0%</div>
+  </div>
+</div>
+
+<!-- TABS -->
+<nav class="tabs-wrap">
+  <div class="tabs-row">
+    <button class="tab-btn active" onclick="showTab(0)"><span class="t-num" id="tn0">1</span>Ecosystem</button>
+    <button class="tab-btn" onclick="showTab(1)"><span class="t-num" id="tn1">2</span>Departments</button>
+    <button class="tab-btn" onclick="showTab(2)"><span class="t-num" id="tn2">3</span>IT Systems</button>
+    <button class="tab-btn" onclick="showTab(3)"><span class="t-num" id="tn3">4</span>Metrics</button>
+    <button class="tab-btn" onclick="showTab(4)"><span class="t-num" id="tn4">5</span>Workflows</button>
+    <button class="tab-btn" onclick="showTab(5)"><span class="t-num" id="tn5">6</span>Cabin &amp; Ground</button>
+    <button class="tab-btn" onclick="showTab(6)"><span class="t-num" id="tn6">7</span>Compliance</button>
+  </div>
+</nav>
+
+<main class="main">
+
+<!-- ═══ MODULE 1 ═══ -->
+<section class="section-panel active" id="tab0">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-blue">Module 01</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Industry Ecosystem &amp; Commercial Basics</div>
+    <div class="mod-desc">Understand the structural, regulatory, and commercial frameworks governing airlines. This context directly informs how systems are architected, what data flows must be tested, and which compliance rules are non-negotiable.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Concepts at a Glance</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>Hub-and-Spoke</strong>Spoke airports feed a central hub for connections — most major full-service carriers</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>Codesharing</strong>Airline A sells seats on Airline B's flight under its own flight number</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>IATA vs ICAO</strong>IATA = commercial/booking standards · ICAO = safety/ATC standards</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>FAA / TSA / DOT</strong>Key regulatory bodies: safety, security, consumer protection — all testable rules</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>3 Global Alliances</strong>Star Alliance (UA) · SkyTeam (DL) · oneworld (AA)</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--blue)"></div><div class="kc-text"><strong>NDC</strong>IATA XML standard replacing GDS for richer direct airline distribution</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-blue">✈️</div><div style="flex:1"><div class="b-title">Hub-and-Spoke vs Point-to-Point Networks</div><div class="b-sub">Core network architecture — impacts routing, connection, and pricing logic</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">The network model defines how the schedule is built and directly determines the routing, connection, and fare logic your systems must test.</p>
+      <div class="s-head">Hub-and-Spoke Model</div>
+      <ul class="blist">
+        <li>Regional <strong>"spoke" airports</strong> funnel passengers into a central <strong>hub</strong> for onward connections — one aircraft serves hundreds of city-pairs via the hub</li>
+        <li><strong>Hub banks:</strong> Timed clusters of arrivals and departures designed to maximise connection efficiency at the hub — e.g., Delta at ATL runs 6 banks per day</li>
+        <li><strong>Example major hubs:</strong> ATL (Delta), ORD/DFW (American/United), LHR (British Airways), CDG (Air France), DXB (Emirates)</li>
+        <li>Schedules published <strong>330+ days in advance</strong> into GDS — network planning decisions lock in months ahead</li>
+        <li>MCT (Minimum Connection Time) enforced per airport/terminal pair — systems must validate every booked connection against MCT rules</li>
+      </ul>
+      <div class="s-head">Point-to-Point (Southwest Model)</div>
+      <ul class="blist teal">
+        <li>Flights connect city pairs <strong>directly — no hub transfer required</strong> — faster journeys, lower hub congestion dependency</li>
+        <li>Limits network breadth — fewer unique city-pair combinations viable at scale</li>
+        <li>Low-cost carriers (like Southwest) use simplified PSS platforms with a flat fare structure — no traditional fare classes (Y, Q, V) — one price point per cabin at a given time</li>
+        <li>No interline baggage agreements with other carriers by default — bags do not transfer to other airlines</li>
+      </ul>
+      <div class="callout c-warn"><span class="callout-ico">⚠️</span><div><strong>QA Note:</strong> MCT validation, codeshare routing eligibility, and interline baggage through-check rules differ fundamentally between hub-and-spoke and point-to-point carriers. Always confirm your client's model before writing connection and baggage test cases.</div></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-teal">🌐</div><div style="flex:1"><div class="b-title">Global Alliances, Codesharing &amp; Interline</div><div class="b-sub">Commercial partnerships — multi-system, multi-carrier testing complexity</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Alliance and codeshare logic spans multiple airline systems, loyalty programmes, and ticketing rules simultaneously — some of the most complex integration testing in aviation.</p>
+      <div class="s-head">The Three Major Alliances</div>
+      <ul class="blist teal">
+        <li><strong>Star Alliance (26 members):</strong> United (UA), Lufthansa (LH), Singapore (SQ), Air Canada (AC), ANA (NH), Thai (TG)</li>
+        <li><strong>SkyTeam (19 members):</strong> Delta (DL), Air France (AF), KLM (KL), Korean Air (KE), Aeroméxico (AM)</li>
+        <li><strong>oneworld (13 members):</strong> American (AA), British Airways (BA), Cathay Pacific (CX), Japan Airlines (JL), Qantas (QF)</li>
+      </ul>
+      <div class="s-head">Codeshare vs Interline vs Virtual Interlining</div>
+      <ul class="blist">
+        <li><strong>Codeshare:</strong> Airline A sells seats on Airline B's flight under its own flight number (e.g., AA1234 operated by BA). One ticket, shared check-in, miles to the marketing carrier's programme. Most common in alliance partnerships</li>
+        <li><strong>Interline:</strong> Two airlines sell connecting journeys on a single ticket without codesharing — separate flight numbers, but bags transfer and MCT rules apply. Common for long-haul connections</li>
+        <li><strong>Virtual Interlining (OTA-driven):</strong> Kiwi.com or Google Flights link separate tickets — airline has NO baggage or connection responsibility. Not a recognised airline arrangement</li>
+        <li>Codeshare inventory synced via GDS or direct API feeds — <strong>availability must reconcile across both airline PSS systems</strong> in near real-time</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Verify codeshare flight numbers display correctly on booking confirmation, e-ticket, and boarding pass</li>
+        <li>Test frequent flyer mile accrual: miles must post to the marketing carrier's programme, not the operating carrier's</li>
+        <li>Validate MCT enforcement at hub airports for interline itineraries — system must reject bookings where layover is below MCT</li>
+        <li>Test baggage through-check eligibility: codeshare = typically yes, interline = depends on agreement, virtual = never</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-amber">📋</div><div style="flex:1"><div class="b-title">IATA, ICAO &amp; Aviation Regulatory Bodies</div><div class="b-sub">FAA · TSA · DOT · CBP — compliance that creates mandatory test cases</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <div class="s-head">IATA vs ICAO — Quick Reference</div>
+      <ul class="blist amber">
+        <li><strong>IATA (industry body):</strong> 2-letter airline codes (DL, AA, UA), 3-letter airport codes (JFK, LAX), e-ticket formats (13-digit document number), baggage tag formats, Resolution 753 (bag tracking), NDC standard</li>
+        <li><strong>ICAO (UN body):</strong> 4-letter codes for ATC (KDFW, KLAX), flight plan formats, aircraft type designators (B738, A320), international safety audit frameworks (USOAP), GADSS tracking standard</li>
+        <li>Rule of thumb: <strong>IATA = what booking systems handle · ICAO = what operations systems handle</strong></li>
+      </ul>
+      <div class="s-head">US Federal Bodies — What They Test</div>
+      <ul class="blist">
+        <li><strong>FAA:</strong> Aircraft airworthiness, pilot certificates, ATC. Issues Airworthiness Directives (ADs) — mandatory fixes that can ground entire fleets. Regulates under Federal Aviation Regulations (FARs)</li>
+        <li><strong>TSA:</strong> Passenger and baggage screening, PreCheck/Known Traveler, checkpoint operations. Airlines must integrate TSA security status into DCS check-in flows</li>
+        <li><strong>DOT:</strong> Consumer protection rules: tarmac delay (max 3 hr domestic / 4 hr international), denied boarding compensation (IDB), baggage fee disclosure, disability accommodation (14 CFR Part 382)</li>
+        <li><strong>CBP:</strong> APIS (Advance Passenger Information System) — passport/nationality data must be submitted before international departure. Typically required 60 min before STD. Testable: timing, field validation, error responses</li>
+      </ul>
+      <div class="callout c-danger"><span class="callout-ico">🚨</span><div><strong>Compliance Impact:</strong> DOT non-compliance fines (applicable to US operations) can reach $37,500 per passenger per violation. APIS failures can result in flight holds. These regulations create mandatory hard-coded business rules — not configurable settings. They must be tested with boundary-condition precision.</div></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 1</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">MCT</div><div class="term-name">Minimum Connection Time</div><div class="term-desc">Shortest allowable layover at a given airport. Varies by terminal, domestic/international, and carrier. Systems must validate every booked connection against published MCT tables.</div></div>
+    <div class="term-card"><div class="term-abbr">AD</div><div class="term-name">Airworthiness Directive</div><div class="term-desc">FAA mandatory safety order — airlines must fix or inspect specific aircraft components within defined timeframes. Non-compliance = aircraft cannot legally fly.</div></div>
+    <div class="term-card"><div class="term-abbr">APIS</div><div class="term-name">Advance Passenger Information System</div><div class="term-desc">Passport, DOB, and nationality data submitted to CBP before international departure. Mandatory for all US carriers. Testing includes timing, field format validation, and CBP response handling.</div></div>
+    <div class="term-card"><div class="term-abbr">NDC</div><div class="term-name">New Distribution Capability</div><div class="term-desc">IATA XML standard (latest: 21.3) enabling airlines to distribute offers directly, bypassing GDS legacy fees and format limitations. Major carriers actively migrating to NDC.</div></div>
+    <div class="term-card"><div class="term-abbr">OAL</div><div class="term-name">Other Airline</div><div class="term-desc">Any carrier that is not the ticketing or marketing carrier. Used in codeshare and interline ticket contexts when the operating carrier differs from who sold the ticket.</div></div>
+    <div class="term-card"><div class="term-abbr">CBA</div><div class="term-name">Collective Bargaining Agreement</div><div class="term-desc">Union contract governing pilot/crew pay, rest, scheduling, and seniority. Crew systems must enforce CBA rules on top of FAR Part 117 — both are hard requirements.</div></div>
+  </div>
+
+    
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 1</div><div class="quiz-hd-sub">Industry Ecosystem &amp; Commercial Basics</div></div><div class="q-badge" id="qb0">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody0"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl0">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog0" style="width:20%"></div></div></div><div class="quiz-q" id="qtext0"></div><div class="quiz-opts" id="qopts0"></div><div class="q-fb" id="qfb0"></div><div class="q-actions"><button class="btn-next" id="qnext0" onclick="nextQ(0)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone0"><div class="done-emoji" id="demoji0">🏆</div><div class="done-score" id="dscore0"></div><div class="done-lbl" id="dlbl0"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar0"></div></div><div class="done-msg" id="dmsg0"></div><button class="btn-retry" onclick="retryQ(0)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn0" onclick="markDone(0)">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ═══ MODULE 2 ═══ -->
+<section class="section-panel" id="tab1">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-teal">Module 02</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Core Operational Departments</div>
+    <div class="mod-desc">Who owns what inside an airline. Understanding department boundaries, data ownership, and system responsibilities is essential for writing accurate test cases and tracing defects to their source.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Concepts at a Glance</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>IOCC</strong>24/7 operational nerve centre — owns all live decisions</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>Revenue Management</strong>Dynamic seat pricing — controls fare class inventory in real-time</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>MRO</strong>Keeps aircraft airworthy — AOG events are top priority</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>Network Planning</strong>Routes &amp; fleet decisions made 12–36 months ahead</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>Ground Handling</strong>Aircraft turnaround — most time-critical team in daily ops</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--teal)"></div><div class="kc-text"><strong>IROPS</strong>Mass disruption state — triggers full network recovery playbook</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-rose">🖥️</div><div style="flex:1"><div class="b-title">IOCC — Integrated Operations Control Center</div><div class="b-sub">The 24/7 airline brain — embedded teams, IROPS ownership, system integration hub</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">The IOCC is the most integration-dense department. Its systems receive data from PSS, DCS, crew management, MRO, weather feeds, and ATC simultaneously. Understanding these data flows is essential for any airline IT project.</p>
+      <div class="s-head">Embedded Teams Inside the IOCC</div>
+      <ul class="blist rose">
+        <li><strong>Flight Dispatch:</strong> Legally co-responsible for each flight alongside the captain. Issues the flight release, reviews weather, NOTAMs, ATC restrictions, and fuel planning. No flight departs without a dispatcher's signature</li>
+        <li><strong>Crew Scheduling:</strong> Manages open-time flying, last-minute crew swaps, and real-time duty-hour tracking. Every crew change cascades through FAR Part 117 recalculation</li>
+        <li><strong>Maintenance Control:</strong> Monitors all active MEL deferred defects and AOG events live. Coordinates part sourcing, tech dispatch, and aircraft swap with other IOCC teams</li>
+        <li><strong>Airport Operations Control (AOC):</strong> Manages gate assignments, ground delay program compliance, and airport slot adherence across the network</li>
+        <li><strong>Load Planning:</strong> Finalises weight-and-balance for each departure — approves or rejects cargo/baggage loads in real-time</li>
+      </ul>
+      <div class="s-head">IROPS — Irregular Operations</div>
+      <ul class="blist">
+        <li><strong>Triggered by:</strong> Severe weather, FAA Ground Delay Programs (GDP), aircraft AOG, security events, medical diversions, or crew duty-hour exhaustion</li>
+        <li><strong>IOCC simultaneously manages:</strong> Aircraft swaps, passenger re-protection (rebooking on next available flights), crew rerouting within legal limits, gate changes, and fuel diversion planning</li>
+        <li><strong>Systems involved:</strong> PSS, DCS, Crew Management System, MRO, GDS (for rebooking), hotel/voucher systems, and customer notification platforms — all must be synchronised</li>
+        <li>Airlines publish <strong>IROPS policies</strong> (e.g., "re-protect within 2 hours or offer full refund") — these are directly testable business rules</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test IROPS re-protection logic: system must offer next available flight first, then partner carrier options — verify priority ordering</li>
+        <li>Validate crew swap propagation: when a crew substitution occurs, all downstream duty-hour checks must re-run automatically across the entire pairing</li>
+        <li>Test AOG notification chain: Maintenance → IOCC → Ground Handling → Gate Agents must all receive alerts within defined SLA (typically &lt;5 min)</li>
+        <li>Verify DOT tarmac delay timer starts at the OUT event (door closed/pushback) — not at wheels-off</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-green">📈</div><div style="flex:1"><div class="b-title">Revenue Management &amp; Network Planning</div><div class="b-sub">Dynamic pricing, overbooking, fleet assignment, and schedule distribution</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <div class="s-head">Revenue Management (RM)</div>
+      <ul class="blist green">
+        <li>Divides cabin into <strong>fare classes/buckets</strong> (Y=full fare business, B M H Q V W=progressively discounted economy). Each bucket has an inventory count that opens/closes dynamically based on demand</li>
+        <li>Algorithms set <strong>bid prices</strong> — the minimum price per seat RM will accept at each booking horizon (how far in advance the booking is made)</li>
+        <li><strong>Overbooking:</strong> Deliberate and legal — RM models historical no-show rates to sell more seats than physically available (typically 5–15% over capacity). When all passengers show, it triggers denied boarding procedures</li>
+        <li>Ancillary revenue streams (seat upgrades, bags, meals, lounge access) now tracked as separate RM categories — increasingly important to profitability</li>
+      </ul>
+      <div class="s-head">Network &amp; Fleet Planning</div>
+      <ul class="blist">
+        <li>Operates on <strong>12–36 month horizons</strong>; seasonal schedules submitted to IATA and published to GDS 330 days in advance</li>
+        <li>Fleet assignment: matching aircraft types (B737, B787, A320, A321XLR) to routes based on range, seat count, fuel economics, and fleet availability</li>
+        <li><strong>Slot coordination:</strong> At slot-controlled airports (JFK, LGA, DCA, ORD), schedules must be coordinated with the FAA and IATA slot body — violations result in slot loss</li>
+        <li>Schedule changes distributed via <strong>SSIM files</strong> to GDS, codeshare partners, and internal systems — testing schedule change propagation and PNR notifications is a critical regression area</li>
+      </ul>
+      <div class="callout c-info"><span class="callout-ico">💡</span><div><strong>Engineer Note:</strong> When RM closes a fare class, the availability update (AVS message) must propagate to PSS and all GDS channels within &lt;30 seconds. A key integration test: close fare class Q in RM → verify availability shows 0 in Sabre, Amadeus, and Travelport within the SLA window.</div></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 2</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">MEL</div><div class="term-name">Minimum Equipment List</div><div class="term-desc">FAA-approved list of equipment allowed to be inoperative for dispatch. Items deferred with time limits: A=3 days, B=10 days, C=120 days, D=continuous. Aircraft can still fly legally with active MEL items.</div></div>
+    <div class="term-card"><div class="term-abbr">GDP</div><div class="term-name">Ground Delay Program</div><div class="term-desc">FAA ATC initiative holding flights at origin to manage destination airport arrival rate during weather/capacity constraints. Airlines receive EDCT times they must comply with.</div></div>
+    <div class="term-card"><div class="term-abbr">EDCT</div><div class="term-name">Expect Departure Clearance Time</div><div class="term-desc">ATC-assigned target departure time during a GDP. Airlines must depart within ±5 minutes of EDCT. Early or late departure is an ATC violation.</div></div>
+    <div class="term-card"><div class="term-abbr">SSIM</div><div class="term-name">Standard Schedules Info Manual</div><div class="term-desc">IATA format for airline schedule data exchange between carriers, GDS, and airports. Schedule changes distributed as SSIM files — must trigger PNR notification flows.</div></div>
+    <div class="term-card"><div class="term-abbr">IDB / VDB</div><div class="term-name">Involuntary / Voluntary Denied Boarding</div><div class="term-desc">IDB: passenger bumped against their will — DOT compensation mandatory. VDB: passenger volunteers for compensation. IDB calculation and payment timing are testable DOT compliance rules.</div></div>
+    <div class="term-card"><div class="term-abbr">AVS</div><div class="term-name">Availability Status Message</div><div class="term-desc">Near-real-time message from PSS/RM to GDS updating seat availability by fare class. Latency testing of AVS message delivery is a critical integration test point.</div></div>
+  </div>
+
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 2</div><div class="quiz-hd-sub">Core Operational Departments</div></div><div class="q-badge" id="qb1">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody1"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl1">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog1" style="width:20%"></div></div></div><div class="quiz-q" id="qtext1"></div><div class="quiz-opts" id="qopts1"></div><div class="q-fb" id="qfb1"></div><div class="q-actions"><button class="btn-next" id="qnext1" onclick="nextQ(1)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone1"><div class="done-emoji" id="demoji1">🏆</div><div class="done-score" id="dscore1"></div><div class="done-lbl" id="dlbl1"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar1"></div></div><div class="done-msg" id="dmsg1"></div><button class="btn-retry" onclick="retryQ(1)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn1" onclick="markDone(1)">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ═══ MODULE 3 ═══ -->
+<section class="section-panel" id="tab2">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-amber">Module 03</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Core IT Systems &amp; Architecture</div>
+    <div class="mod-desc">The technology platforms that power airline operations. Understanding system boundaries, data formats, and integration points is the foundation for writing effective integration test cases and tracing defects accurately.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Concepts at a Glance</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>GDS</strong>Amadeus · Sabre · Travelport — global seat distribution to agents</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>PSS</strong>Mission-critical core: reservations, inventory, ticketing, PNR lifecycle</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>DCS</strong>Airport check-in, seat assign, boarding, W&amp;B — departure control</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>Crew Mgmt</strong>Pairing optimisation + FAR Part 117 hard-block enforcement</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>BRS</strong>IATA Res 753 bag tracking — 4 mandatory scan points per flight</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--amber)"></div><div class="kc-text"><strong>PNR</strong>6-char booking record — lifecycle from creation to flown coupon</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-amber">🔗</div><div style="flex:1"><div class="b-title">System Integration Architecture</div><div class="b-sub">How airline IT systems connect — protocols, data flows, and message formats</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Most airline production defects originate at system boundaries. Understanding the message formats and integration points between systems is the highest-value knowledge for integration and regression testing.</p>
+      <div class="s-head">Core Integration Flows</div>
+      <ul class="blist amber">
+        <li><strong>GDS → PSS:</strong> Booking requests flow from travel agencies via GDS. PSS creates PNR, confirms seat inventory, issues e-ticket, and returns confirmation. Protocol: legacy EDIFACT or modern NDC/XML. Latency SLA: &lt;2 seconds for seat confirmation</li>
+        <li><strong>PSS → DCS:</strong> Check-in system pulls passenger manifest via PNL message ~24 hrs pre-departure. DCS returns real-time check-in updates (ADL messages) back to PSS. Gate boarding scans update PNR coupon status</li>
+        <li><strong>DCS → BRS:</strong> Checked-in passenger list and bag tag data sent to BRS for reconciliation. BRS notifies DCS when bags are flagged for offload (no-show passenger detection)</li>
+        <li><strong>RM → PSS → GDS:</strong> Fare class inventory updates (AVS messages) flow RM → PSS → GDS in near-real-time. Closing a fare class must propagate to all GDS channels within &lt;30 seconds</li>
+        <li><strong>MRO → IOCC:</strong> Aircraft airworthiness status (airworthy / MEL deferred / AOG) feeds continuously to IOCC ops system. Any AOG status change triggers an immediate IOCC response workflow</li>
+        <li><strong>PSS → Crew Mgmt:</strong> Flight schedule updates feed crew management. Crew assignments confirmed back to IOCC ops system. Schedule changes trigger re-pairing checks</li>
+      </ul>
+      <div class="s-head">Key Data Formats</div>
+      <ul class="blist">
+        <li><strong>EDIFACT:</strong> Legacy UN electronic data interchange format — still dominant in GDS messaging (PNRGOV, BSGA, BSGT messages). 30+ year old standard, still mandatory to support</li>
+        <li><strong>NDC XML (IATA 21.3):</strong> Modern REST/XML API standard — enables richer personalised offers, ancillary upsell, and direct connections bypassing GDS fees</li>
+        <li><strong>AIDX:</strong> IATA Airport Data Exchange — XML standard for flight status sharing between airlines, airports, and handlers. Powers FIDS displays and ground handler alerts</li>
+        <li><strong>ACARS:</strong> Aircraft Communications Addressing and Reporting System — two-way digital data link. Ground sends: load sheets, weather. Aircraft sends: OOOI events, position reports, engine health data</li>
+      </ul>
+      <div class="callout c-info"><span class="callout-ico">💡</span><div><strong>Integration Testing Tip:</strong> Test message format validation, timeout handling, retry logic, and failover at every system boundary. Specifically: GDS↔PSS, PSS↔DCS, and DCS↔BRS boundaries are the highest-defect-density interfaces in airline IT.</div></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-violet">🗄️</div><div style="flex:1"><div class="b-title">PSS — Passenger Service System Deep Dive</div><div class="b-sub">PNR lifecycle, coupon statuses, fare classes, and ticketing rules</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">The PSS is the airline's mission-critical backbone. 15 minutes of downtime can cost $500k+. Every booking, change, and refund flows through PSS — understanding it is foundational for any airline IT project.</p>
+      <div class="s-head">PNR Lifecycle — 6 Key States</div>
+      <ul class="blist violet">
+        <li><strong>Created (HK):</strong> PNR created on booking — 6-character alphanumeric locator (e.g., ABC123). Contains: segments, passengers, contact, fare basis code, SSRs, OSIs, payment reference. Status HK = Holding Confirmed</li>
+        <li><strong>Ticketed (TK):</strong> E-ticket (13-digit: 3-char IATA airline code + 10-digit serial) issued on payment. Coupon status: O = Open for use. Waits in this state until check-in</li>
+        <li><strong>Modified:</strong> Voluntary changes (date, name correction, upgrade) — each triggers fare recalculation and potential change fee. Change fee waived if schedule change waiver (SCW) applies</li>
+        <li><strong>Checked In:</strong> DCS pulls PNR, assigns seat, records baggage count. PSS coupon status remains O. PNR updated with seat number and bag count</li>
+        <li><strong>Boarded (F):</strong> Gate scan records boarding. Coupon status updated O → F (Flown). No-shows flagged NS → triggers BRS bag offload</li>
+        <li><strong>Refunded (R) / Void (V):</strong> Post-travel or cancellation. Coupon marked R or V — prevents double-processing. Revenue accounting and loyalty systems triggered</li>
+      </ul>
+      <div class="s-head">Segment Status Codes</div>
+      <ul class="blist">
+        <li><strong>HK</strong> = Holding Confirmed &nbsp;|&nbsp; <strong>HL</strong> = Holding Waitlist &nbsp;|&nbsp; <strong>KL</strong> = Confirmed from waitlist</li>
+        <li><strong>SC</strong> = Schedule Change (flight time changed) &nbsp;|&nbsp; <strong>UN</strong> = Unable — airline cannot accommodate</li>
+        <li><strong>RQ</strong> = Request pending &nbsp;|&nbsp; <strong>TK</strong> = Ticketed &nbsp;|&nbsp; <strong>NS</strong> = No Show — triggers BRS bag offload</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test PNR creation with all mandatory fields — validate 6-char locator uniqueness and alphanumeric character set (no I, O, 0, 1 to avoid confusion)</li>
+        <li>Test schedule change (SC) notification: PSS must push change notifications to all booking channels (GDS, direct, mobile app) within defined SLA</li>
+        <li>Test concurrent PNR modification: two agents updating the same PNR simultaneously must not result in data loss — verify optimistic locking or queuing</li>
+        <li>Validate NS status triggers BRS bag offload API call within SLA (typically &lt;60 seconds of boarding gate closure)</li>
+        <li>Test coupon status transitions — verify system rejects attempting to refund a coupon already in R (Refunded) status</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-blue">🌐</div><div style="flex:1"><div class="b-title">GDS — Global Distribution System Deep Dive</div><div class="b-sub">Amadeus · Sabre · Travelport — how airline inventory reaches travel agents globally</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">The GDS is the global marketplace connecting airline seat inventory to hundreds of thousands of travel agents, OTAs, and corporate booking tools worldwide. Understanding GDS architecture is essential for testing distribution, booking, and availability synchronisation workflows.</p>
+      <div class="s-head">What is a GDS and Who Uses It?</div>
+      <ul class="blist">
+        <li><strong>Global Distribution System (GDS):</strong> A third-party network that aggregates inventory from multiple airlines and distributes it to travel agents and Online Travel Agencies (OTAs). The three major GDS platforms are <strong>Amadeus</strong> (headquartered in Europe), <strong>Sabre</strong> (US-based, used natively by American Airlines), and <strong>Travelport</strong> (Galileo + Worldspan brands)</li>
+        <li><strong>Who accesses GDS:</strong> Traditional travel agencies (brick-and-mortar and online), corporate travel management companies (TMCs), OTAs like Expedia and Booking.com, and airline reservation agents who use GDS terminals directly</li>
+        <li><strong>What airlines pay:</strong> Airlines pay a per-segment booking fee to the GDS for each reservation made through the platform. This fee has driven airlines to develop NDC as a direct distribution alternative</li>
+      </ul>
+      <div class="s-head">How GDS Connects to Airline Systems</div>
+      <ul class="blist teal">
+        <li><strong>Inventory feeds:</strong> Airlines publish seat availability to GDS in real time via AVS (Availability Status) messages. When RM closes a fare class, the update must reach all GDS platforms within SLA (typically under 30 seconds)</li>
+        <li><strong>Booking flow:</strong> Agent searches availability in GDS → GDS queries airline PSS → PSS confirms seat → GDS creates PNR in its own system → simultaneously triggers PNR creation in airline PSS. Both the GDS PNR and the airline PNR must stay synchronised</li>
+        <li><strong>Fare filing:</strong> Airlines file fares into ATPCO (Airline Tariff Publishing Company) — a central fare database that GDS platforms read to calculate prices and rules. Fare rule changes in ATPCO propagate to all GDS systems on a scheduled basis</li>
+        <li><strong>Schedule distribution:</strong> Airlines submit schedule data in SSIM format. GDS platforms ingest this to build their timetable databases — schedule changes must propagate and trigger notifications to all affected existing PNRs</li>
+        <li><strong>Ticketing:</strong> Once a booking is confirmed, the agent issues an e-ticket through the GDS. The ticket is transmitted to the airline PSS and settled financially through BSP or ARC</li>
+      </ul>
+      <div class="s-head">GDS vs NDC — The Distribution Shift</div>
+      <ul class="blist amber">
+        <li><strong>GDS limitation:</strong> Traditional GDS uses EDIFACT messaging — a 1980s standard with fixed data fields. It cannot carry rich content like branded fare descriptions, seat photos, bundled ancillary offers, or personalised pricing</li>
+        <li><strong>NDC (New Distribution Capability):</strong> IATA XML standard enabling airlines to communicate directly with agents via modern REST/XML APIs. Supports dynamic pricing, ancillary bundling, personalisation, and richer content that GDS cannot carry</li>
+        <li><strong>Current reality:</strong> Most major airlines are mid-migration — running GDS (EDIFACT) and NDC simultaneously. Test environments must validate both channels independently and verify inventory consistency between them</li>
+        <li><strong>ATPCO vs dynamic pricing:</strong> GDS fares are typically filed in ATPCO in advance. NDC enables dynamic offers computed in real-time — a significant architectural difference requiring different test approaches</li>
+      </ul>
+      <div class="s-head">Key GDS Data Objects</div>
+      <ul class="blist">
+        <li><strong>PNR (Passenger Name Record):</strong> GDS creates its own PNR (e.g., in Sabre: XKABCD) alongside the airline PSS PNR. Both must remain synchronised — changes in one must reflect in the other</li>
+        <li><strong>Segment:</strong> Each flight leg in the itinerary. GDS tracks availability, status codes, and fare basis per segment</li>
+        <li><strong>Fare Basis Code:</strong> Alphanumeric code (e.g., YLOWUS) identifying the exact fare rules applying to a ticket — determines refundability, change fees, baggage allowance, and upgrade eligibility</li>
+        <li><strong>Queue:</strong> GDS-side message queues used to route PNRs to specific agency desks or airline back-office teams for manual handling (e.g., visa check queue, special services queue)</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test inventory synchronisation: close a fare class in RM → verify it shows unavailable in all GDS channels within the SLA window — test Amadeus, Sabre, and Travelport independently</li>
+        <li>Test PNR synchronisation: make a change in the GDS PNR (seat change) — verify the airline PSS PNR updates correctly and vice versa</li>
+        <li>Test schedule change propagation: update a flight time in the airline system → verify GDS schedule database updates and existing PNRs receive SC (Schedule Change) notification</li>
+        <li>Test fare basis code enforcement: book a non-refundable fare basis code → attempt a refund in PSS → verify penalty applies correctly and matches the ATPCO fare rule</li>
+        <li>Test NDC vs GDS parity: book the same itinerary via NDC and GDS → verify seat inventory decrements correctly in both and airline PSS shows correct total bookings</li>
+        <li>Test GDS queue routing: create a PNR with an UMNR SSR → verify PNR is automatically queued to the special services queue in the GDS</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-teal">🎫</div><div style="flex:1"><div class="b-title">DCS — Departure Control System Deep Dive</div><div class="b-sub">Check-in · Boarding · Weight &amp; Balance · Gate Control — the airport-facing backbone</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">The DCS is the airport-facing system used by check-in agents, gate agents, and load planners. It bridges the PSS (reservation world) and the physical airport world — from the moment a passenger arrives at check-in to the moment the aircraft door closes. Understanding DCS is critical for testing check-in flows, boarding logic, and weight-and-balance compliance.</p>
+      <div class="s-head">Core DCS Functions</div>
+      <ul class="blist teal">
+        <li><strong>Passenger Check-In:</strong> Agent pulls PNR from PSS via PNL message. Verifies passenger identity. Assigns or confirms seat. Collects bag count and weight. Issues boarding pass (printed or mobile). DCS records check-in status and feeds updates back to PSS in real time</li>
+        <li><strong>Seat Assignment &amp; Management:</strong> DCS maintains the real-time seat map — showing PSS reservations, DCS check-in assignments, blocked seats (crew rest, safety seats), and seats available for upgrade. Must reconcile with PSS seat map without conflicts</li>
+        <li><strong>Baggage Processing:</strong> Generates 10-digit IATA baggage tags. Records bag count and weight per passenger. Calculates excess baggage fees and triggers EMD creation in PSS. Sends checked-in bag data to BRS for tracking</li>
+        <li><strong>Weight &amp; Balance (W&amp;B):</strong> DCS integrates with the Load Planning system to calculate real-time W&amp;B as passengers check in. Tracks total aircraft weight (passengers + bags + cargo + fuel) and centre of gravity (CG). Produces the load sheet sent to the captain via ACARS</li>
+        <li><strong>Boarding Gate Control:</strong> Gate agent uses DCS to scan boarding passes, validate entitlement, manage pre-board groups, process upgrades and standbys, close the gate, and send the final boarding count to load planning and the captain</li>
+        <li><strong>Departure Release:</strong> Before the OUT event can be recorded, DCS must confirm: minimum FA count met, load sheet accepted by captain, no outstanding security holds, and APIS submission confirmed (international flights)</li>
+      </ul>
+      <div class="s-head">DCS Integration Points</div>
+      <ul class="blist">
+        <li><strong>PSS → DCS (PNL/ADL):</strong> PSS sends the passenger manifest (PNL) to DCS approximately 24 hours before departure. Real-time updates (ADL — Additions and Deletions List) continue until gate closure. DCS must process ADL messages immediately to reflect last-minute changes</li>
+        <li><strong>DCS → BRS:</strong> As each passenger checks in, DCS sends bag tag data and passenger status to BRS. When a passenger is marked as a no-show (NS), DCS triggers BRS to flag their bags for offload before departure</li>
+        <li><strong>DCS → IOCC:</strong> DCS sends real-time boarding progress updates to the IOCC operations system — allowing the IOCC to monitor if a flight is tracking to an on-time departure or if intervention is needed</li>
+        <li><strong>DCS → ACARS:</strong> The final load sheet (weight-and-balance document) is transmitted from the Load Planning module integrated with DCS to the aircraft via ACARS. Captain must digitally accept it before pushback</li>
+        <li><strong>DCS → Loyalty System:</strong> Check-in event confirms the flight segment for the passenger — triggers pre-flight loyalty checks and post-flight miles posting queues</li>
+      </ul>
+      <div class="s-head">DCS Check-In Modes</div>
+      <ul class="blist violet">
+        <li><strong>Airport Counter Check-In:</strong> Agent-assisted. Full service — handles name corrections, special needs, oversized bags, upgrade requests. Agent accesses DCS via dedicated terminal</li>
+        <li><strong>Self-Service Kiosk:</strong> Passenger-initiated check-in at airport kiosk. Limited to standard transactions — seat changes, boarding pass reprint. Kiosk connects to DCS directly; exceptions routed to agent</li>
+        <li><strong>Web/Mobile Check-In:</strong> Passenger checks in via app or website 24–1 hours before departure. Boarding pass issued digitally. DCS processes the check-in and updates PSS. Bag drop lane required if checking bags</li>
+        <li><strong>Automated Bag Drop (ABD):</strong> Passenger uses self-service bag drop unit — scans boarding pass, places bag on belt, system weighs and tags automatically. ABD interfaces directly with DCS and BRS</li>
+        <li><strong>Gate Check-In (Go-Show):</strong> Passengers who haven't checked in online can be processed at the gate. Last resort — DCS allows gate agents to perform basic check-in and print boarding pass at the gate</li>
+      </ul>
+      <div class="s-head">Weight &amp; Balance — Why It Matters</div>
+      <ul class="blist rose">
+        <li><strong>What W&amp;B calculates:</strong> Total aircraft weight (Zero Fuel Weight + fuel) must be below Maximum Take-Off Weight (MTOW). Centre of Gravity (CG) must stay within the forward and aft limits certified by the aircraft manufacturer</li>
+        <li><strong>Real-time calculation:</strong> DCS/Load Planning recalculates W&amp;B dynamically as bags and passengers check in. Last-minute passenger no-shows or cargo changes require W&amp;B recalculation and resubmission</li>
+        <li><strong>Load sheet sign-off:</strong> The final load sheet is a legally required document. It must be transmitted to the captain and digitally accepted via ACARS before pushback. An unaccepted load sheet = aircraft cannot depart</li>
+        <li><strong>Consequence of error:</strong> An incorrect W&amp;B can place the aircraft outside its certified CG envelope — creating dangerous handling characteristics on takeoff and landing. This is a safety-critical system where defects have direct aircraft safety implications</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test PNL/ADL message processing: send ADL with a last-minute cancellation → verify DCS removes passenger from manifest, updates seat map, and triggers BRS bag offload alert</li>
+        <li>Test W&amp;B recalculation: simulate a late no-show reducing passenger count → verify W&amp;B recalculates, new load sheet generated, and captain must re-accept via ACARS</li>
+        <li>Test boarding pass validation: attempt to scan a boarding pass after gate closure → verify DCS rejects with correct error — no late boarders allowed after gate close</li>
+        <li>Test SSR pre-board triggering: add WCHR SSR to a PNR → verify gate agent DCS screen shows pre-board flag and correct boarding group assignment</li>
+        <li>Test upgrade at gate: process a standby upgrade in DCS → verify seat map updates, new boarding pass issued, PSS PNR updated with new fare class, and EMD created if applicable</li>
+        <li>Test departure release blocking: simulate minimum FA count dropping below Part 121 minimum → verify DCS blocks departure release and raises alert — departure cannot proceed</li>
+        <li>Test mobile boarding pass scanning: scan a mobile boarding pass QR code → verify DCS correctly validates the barcode, records boarding, and updates PSS coupon status to Boarded</li>
+        <li>Test W&amp;B CG limit breach: input a load scenario that pushes CG outside the certified envelope → verify DCS/Load system flags the breach and prevents load sheet generation until corrected</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 3</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">PNL / ADL</div><div class="term-name">Passenger Name List / Additions &amp; Deletions</div><div class="term-desc">PNL = initial manifest PSS sends to DCS ~24 hrs before departure. ADL = real-time updates reflecting last-minute bookings, cancellations, and SSR changes after PNL is sent.</div></div>
+    <div class="term-card"><div class="term-abbr">EMD</div><div class="term-name">Electronic Miscellaneous Document</div><div class="term-desc">IATA ticket document for ancillary services: excess baggage, seat fees, upgrades, lounge passes. Linked to master e-ticket for reconciliation. Has its own coupon status lifecycle.</div></div>
+    <div class="term-card"><div class="term-abbr">SSR</div><div class="term-name">Special Service Request</div><div class="term-desc">Codes on a PNR requiring active airline handling: WCHR (wheelchair), UMNR (unaccompanied minor), MEDA (medical), VGML (vegetarian meal). Must trigger handling at check-in, boarding, and flight.</div></div>
+    <div class="term-card"><div class="term-abbr">GRS</div><div class="term-name">Graphical Seat Map</div><div class="term-desc">Real-time seat availability display showing PSS reservations and DCS check-in assignments. Must reconcile without conflict — a seat cannot show available in PSS if DCS has assigned it.</div></div>
+    <div class="term-card"><div class="term-abbr">ACARS</div><div class="term-name">Aircraft Comms &amp; Reporting System</div><div class="term-desc">Two-way digital data link between aircraft and ground. Transmits OOOI events (Out/Off/On/In), load sheet acceptance, position reports, and engine health data.</div></div>
+    <div class="term-card"><div class="term-abbr">OSI</div><div class="term-name">Other Service Information</div><div class="term-desc">Informational notes on a PNR that do not require active handling — e.g., frequent flyer number, corporate account code. Unlike SSR, OSI does not trigger any service action.</div></div>
+  </div>
+
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 3</div><div class="quiz-hd-sub">Core IT Systems &amp; Architecture</div></div><div class="q-badge" id="qb2">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody2"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl2">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog2" style="width:20%"></div></div></div><div class="quiz-q" id="qtext2"></div><div class="quiz-opts" id="qopts2"></div><div class="q-fb" id="qfb2"></div><div class="q-actions"><button class="btn-next" id="qnext2" onclick="nextQ(2)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone2"><div class="done-emoji" id="demoji2">🏆</div><div class="done-score" id="dscore2"></div><div class="done-lbl" id="dlbl2"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar2"></div></div><div class="done-msg" id="dmsg2"></div><button class="btn-retry" onclick="retryQ(2)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn2" onclick="markDone(2)">✓ Mark Module Complete</button></div>
+</section>
+<!-- ═══ MODULE 4 ═══ -->
+<section class="section-panel" id="tab3">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-violet">Module 04</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Key Metrics &amp; Performance Terms</div>
+    <div class="mod-desc">The KPIs and operational terms that appear in every stakeholder conversation, dashboard spec, and system requirement. Fluency in these metrics signals domain credibility and helps engineers write accurate acceptance criteria.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Concepts at a Glance</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>ASM / RPM</strong>Capacity offered (ASM) vs capacity consumed (RPM) — supply and demand</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>RASM / CASM</strong>Revenue vs cost per seat mile — the core profitability spread</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>D0 / A14</strong>Zero-tolerance departure metric / within-14-min arrival metric</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>MTT</strong>Minimum Turn Time — aircraft-type specific window; missing it cascades delays all day</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>AOG</strong>Aircraft on Ground — highest-priority maintenance state, major cost cascade</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--violet)"></div><div class="kc-text"><strong>Load Factor</strong>RPM ÷ ASM — percentage of capacity filled by paying passengers</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-violet">📊</div><div style="flex:1"><div class="b-title">Financial &amp; Capacity Metrics</div><div class="b-sub">ASM, RPM, RASM, CASM, Load Factor, Yield — formulas and definitions</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <div class="s-head">Core Formulas &amp; Definitions</div>
+      <ul class="blist violet">
+        <li><strong>ASM (Available Seat Miles):</strong> Seats × Miles Flown. Total capacity offered regardless of how many seats are actually sold. The fundamental supply-side denominator used in all per-unit airline metrics</li>
+        <li><strong>RPM (Revenue Passenger Miles):</strong> Paying Passengers × Miles Flown. Measures actual demand — the capacity consumed by revenue-generating passengers. Always ≤ ASM</li>
+        <li><strong>Load Factor:</strong> RPM ÷ ASM × 100. The percentage of available seat capacity filled by paying passengers. When Load Factor = 100%, every seat is occupied by a paying passenger</li>
+        <li><strong>RASM (Revenue per ASM):</strong> Total Revenue ÷ ASM. Measures how much revenue the airline generates for every unit of capacity it offers. Expressed in cents per seat mile</li>
+        <li><strong>CASM (Cost per ASM):</strong> Total Operating Cost ÷ ASM. Measures cost efficiency per unit of capacity. When RASM &gt; CASM, the airline is profitable on that flight or network. When CASM exceeds RASM, the operation is loss-making</li>
+        <li><strong>Yield:</strong> Revenue per RPM. Measures the average fare paid per mile flown by a paying passenger. High yield on thin routes can offset lower load factors. Low yield requires high load factor to cover costs</li>
+      </ul>
+      <div class="callout c-info"><span class="callout-ico">💡</span><div><strong>Why these matter for engineers:</strong> Every airline reporting dashboard, acceptance criterion, and KPI alert is built on these formulas. When a stakeholder says "RASM is declining on that route" or "we need to improve load factor reporting accuracy," you must understand what they are measuring and how it flows from the source data in PSS and revenue accounting systems.</div></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-rose">⏱️</div><div style="flex:1"><div class="b-title">Operational Metrics &amp; Critical States</div><div class="b-sub">OTP, D0, A14, MTT, AOG, IROPS, OOOI — what each means and how to test it</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <div class="s-head">On-Time Performance (OTP)</div>
+      <ul class="blist rose">
+        <li><strong>D0 (Gate Departure On-Time):</strong> Aircraft pushes back at exactly the scheduled minute — ZERO tolerance. 1 minute late = D0 failure. Most demanding OTP metric, used internally by airlines to manage schedule integrity</li>
+        <li><strong>A14 (Arrival On-Time):</strong> Aircraft arrives within 14 minutes of scheduled arrival. This is the DOT-reported public metric. Airlines publish monthly A14 statistics — consumer-facing and tied to DOT rankings</li>
+        <li><strong>IATA Delay Codes:</strong> 93 standard delay cause codes (e.g., 93=weather, 41=aircraft damage, 61=late arriving crew). Airlines must record delay codes for all delays — used for root cause analysis, ground handler SLAs, and DOT reporting</li>
+      </ul>
+      <div class="s-head">Critical Operational States</div>
+      <ul class="blist">
+        <li><strong>OOOI Events:</strong> Out (pushback), Off (takeoff), On (landing), In (gate arrival) — four ACARS-transmitted timestamps that power every downstream OTP, duty-hour, and status system</li>
+        <li><strong>MTT (Minimum Turn Time):</strong> The minimum allowable window for a full aircraft turnaround — varies by aircraft type and airline. Missing MTT cascades to every subsequent rotation on that aircraft tail — a morning delay compounds throughout the day</li>
+        <li><strong>AOG (Aircraft on Ground):</strong> Aircraft has a defect preventing airworthiness. All flying stops until a certified technician clears it. AOG events are operationally and financially severe — costs accumulate rapidly from recovery, rerouts, hotels, and passenger compensation</li>
+        <li><strong>Block Time:</strong> Total time from gate pushback (OUT) to aircraft stop at destination (IN). Used for crew duty-hour calculation and schedule construction. Must be stored and calculated in UTC</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test OOOI event processing: OUT triggers tarmac delay timer, OFF starts block time, IN writes A14 record — verify each independently</li>
+        <li>Test delay code assignment logic: multi-cause delays (weather + mechanical) must apply primary cause rules correctly per IATA standard</li>
+        <li>Validate MTT warning: when scheduled turn time drops below aircraft-type MTT threshold, system must alert ground ops and IOCC automatically</li>
+        <li>Test ETD propagation: IOCC ETD update must reach airport FIDS, passenger app, and crew scheduling within &lt;60-second SLA</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 4</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">OOOI</div><div class="term-name">Out – Off – On – In</div><div class="term-desc">The 4 ACARS flight milestones: OUT=pushback, OFF=takeoff, ON=landing, IN=gate. All OTP, duty-hour, and status calculations derive from these timestamps. Must be stored in UTC.</div></div>
+    <div class="term-card"><div class="term-abbr">Block Time</div><div class="term-name">Gate-to-Gate Flight Time</div><div class="term-desc">Total time from OUT to IN. Used for crew duty-hour calculation, schedule padding, and airline cost accounting. Differs from flight time (OFF to ON) by ~10–20 minutes.</div></div>
+    <div class="term-card"><div class="term-abbr">PAX</div><div class="term-name">Passengers</div><div class="term-desc">Universal aviation abbreviation for passengers. Used in manifests, system logs, and all operations communications. Singular and plural both use PAX.</div></div>
+    <div class="term-card"><div class="term-abbr">Segment</div><div class="term-name">Single Takeoff-to-Landing Leg</div><div class="term-desc">One flight from origin to destination. A connecting itinerary JFK→LAX via ORD has 2 segments. PSS tracks revenue, availability, and coupon status per segment.</div></div>
+    <div class="term-card"><div class="term-abbr">ETD / STD</div><div class="term-name">Estimated / Scheduled Departure Time</div><div class="term-desc">STD = published schedule. ETD = current IOCC estimate. Gap = delay minutes. All downstream systems (crew app, FIDS, passenger notifications) update when ETD changes.</div></div>
+    <div class="term-card"><div class="term-abbr">Yield</div><div class="term-name">Revenue per RPM</div><div class="term-desc">Average revenue earned per actual revenue passenger mile flown. High yield on thin routes can compensate for lower load factors. Tracked per cabin and fare class.</div></div>
+  </div>
+
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 4</div><div class="quiz-hd-sub">Key Metrics &amp; Performance Terms</div></div><div class="q-badge" id="qb3">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody3"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl3">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog3" style="width:20%"></div></div></div><div class="quiz-q" id="qtext3"></div><div class="quiz-opts" id="qopts3"></div><div class="q-fb" id="qfb3"></div><div class="q-actions"><button class="btn-next" id="qnext3" onclick="nextQ(3)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone3"><div class="done-emoji" id="demoji3">🏆</div><div class="done-score" id="dscore3"></div><div class="done-lbl" id="dlbl3"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar3"></div></div><div class="done-msg" id="dmsg3"></div><button class="btn-retry" onclick="retryQ(3)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn3" onclick="markDone(3)">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ═══ MODULE 5 ═══ -->
+<section class="section-panel" id="tab4">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-rose">Module 05</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Airline Workflows — End to End</div>
+    <div class="mod-desc">Step-by-step operational flows every engineer and tester must know to design accurate test cases. Covers baggage tracking, flight tracking, refund processing, and the complete airline payments flow.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Workflows Covered in this Module</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>Baggage Tracking</strong>Check-in → Tag → Sort → Load → Deliver — 4 mandatory IATA scan points</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>Flight Tracking</strong>Flight plan → OOOI events → ADS-B → ACARS → Status distribution</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>Refund Processing</strong>Void / INVOL / VOL → BSP settlement → 7-day / 20-day DOT SLA</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>Check-in Flow</strong>PNL → DCS → Seat assign → Bag drop → Boarding pass → Gate scan</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>IROPS Recovery</strong>Event → IOCC → Re-protect → Notify → Rebook → Compensate</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>WorldTracer</strong>Mishandled bag PIR → global match → forward to passenger</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--rose)"></div><div class="kc-text"><strong>Payments Flow</strong>Auth → 3DS → Settlement → BSP/ARC → Chargeback handling</div></div>
+    </div>
+  </div>
+
+  <div class="block open" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-blue">🧳</div><div style="flex:1"><div class="b-title">How to Track a Baggage — Complete 8-Step Flow</div><div class="b-sub">From check-in counter to carousel — IATA Resolution 753, BRS, WorldTracer</div></div><span class="b-chev" style="transform:rotate(180deg);color:var(--blue2)">⌄</span></div>
+    <div class="b-body" style="max-height:5000px"><div class="b-inner">
+      <p class="c-intro">Baggage tracking is governed by IATA Resolution 753 (mandatory since June 2018). Every bag must be tracked at 4 checkpoints per flight. The BRS is the core engine — communicating with DCS, IOCC, and WorldTracer. Security rule: no flight may depart with an unaccompanied checked bag.</p>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-n">1</div><div class="wf-c"><div class="wf-title">Check-In &amp; Bag Tag Generation</div><div class="wf-desc">Passenger presents bag at counter. Agent weighs (max 23 kg economy / 32 kg business). Excess baggage fee charged via EMD if overweight. DCS generates a <strong>10-digit IATA baggage tag</strong> (the bag's unique "license plate") — format: IATA carrier code + sequential number. Tag printed, attached, and scanned into BRS. Bag is now trackable.</div><div class="wf-tags"><span class="wf-tag">DCS</span><span class="wf-tag t">PSS/EMD</span><span class="wf-tag a">BRS Init</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">2</div><div class="wf-c"><div class="wf-title">Bag Induction — BRS Scan Point 1</div><div class="wf-desc">Bag placed on conveyor belt. First BRS mandatory scan recorded at induction point. Bag enters the <strong>Baggage Handling System (BHS)</strong> — automated conveyor and sortation infrastructure owned by the airport. From this point the bag is tracked by the airport's BHS working in tandem with the airline's BRS.</div><div class="wf-tags"><span class="wf-tag">BRS Scan 1</span><span class="wf-tag t">BHS</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">3</div><div class="wf-c"><div class="wf-title">TSA Security Screening (EDS)</div><div class="wf-desc">Bag passes through Explosive Detection System (EDS) — CT scanner or X-ray. If flagged: routed to <strong>CBRA (Checked Baggage Resolution Area)</strong> for physical or manual inspection by TSA agent. Cleared bags continue automatically. Rejected bags returned to passenger at check-in — flight proceeds without the bag. BRS records TSA clearance status.</div><div class="wf-tags"><span class="wf-tag a">TSA/EDS</span><span class="wf-tag">CBRA</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">4</div><div class="wf-c"><div class="wf-title">Sortation &amp; Make-Up — BRS Scan Point 2</div><div class="wf-desc">BHS reads the 10-digit bag tag and automatically routes the bag to the correct <strong>make-up area</strong> — the staging zone for that specific flight. Bags sorted into <strong>ULD (Unit Load Device)</strong> containers or loose-loaded onto carts. Second mandatory BRS scan recorded at make-up. Any misrouted bags trigger an alert to the ground handler.</div><div class="wf-tags"><span class="wf-tag">BRS Scan 2</span><span class="wf-tag t">BHS Sort</span><span class="wf-tag a">ULD</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">5</div><div class="wf-c"><div class="wf-title">Aircraft Loading &amp; Reconciliation — BRS Scan Point 3</div><div class="wf-desc">Ramp agent scans each bag as it is physically loaded into the aircraft hold. BRS cross-references loaded bags against the checked-in manifest from DCS in real time.<br><br>🔴 <strong>Critical Security Rule:</strong> If a passenger who checked in bags has <strong>not boarded</strong> (NS status in DCS), their bags <strong>must be physically offloaded</strong> before the aircraft can depart. BRS flags this automatically and alerts the ramp team. This is a mandatory, non-negotiable security requirement — no override is possible.</div><div class="wf-tags"><span class="wf-tag">BRS Scan 3</span><span class="wf-tag t">DCS Reconcile</span><span class="wf-tag a">Ramp/Load</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">6</div><div class="wf-c"><div class="wf-title">Transfer Bag Tracking (Connecting Flights)</div><div class="wf-desc">For connecting itineraries: transfer bags scanned at the hub connection point. BRS verifies the bag is on track for its connecting flight's make-up cutoff. If the connection is tight (&lt;45 min at most airports): a <strong>rush tag</strong> is applied and the bag is priority-routed through sortation. WorldTracer receives interline bag data for through-checked bags on partner carriers.</div><div class="wf-tags"><span class="wf-tag">WorldTracer</span><span class="wf-tag t">BRS Hub</span><span class="wf-tag a">Rush Tag</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">7</div><div class="wf-c"><div class="wf-title">Arrival Carousel Delivery — BRS Scan Point 4</div><div class="wf-desc">Bags offloaded from aircraft and scanned onto the arrival belt — the <strong>fourth and final mandatory IATA Resolution 753 scan</strong>. At some airports passengers scan their boarding pass at the carousel to confirm collection, completing the full tracking loop. BRS marks the bag as delivered. The full audit trail (4 scans, timestamps, handler IDs) is retained per IATA standard for dispute resolution.</div><div class="wf-tags"><span class="wf-tag">BRS Scan 4</span><span class="wf-tag t">Carousel</span><span class="wf-tag a">IATA 753 Complete</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">8</div><div class="wf-c"><div class="wf-title">Mishandled Bag Recovery — WorldTracer &amp; PIR</div><div class="wf-desc">If bag doesn't arrive: agent files a <strong>PIR (Property Irregularity Report)</strong> in WorldTracer — the global mishandled baggage database shared by 200+ airlines. WorldTracer matches the 10-digit bag tag against incoming BRS scans worldwide. Once located, bag forwarded to passenger's address via courier.<br><br><strong>DOT Compensation (domestic US):</strong> Airlines must compensate passengers for delayed bags — typically $50/day up to $3,800 (revised 2024 DOT rule). Damaged bag claims: up to $3,800. International: governed by Montreal Convention (approx. 1,288 SDRs).</div><div class="wf-tags"><span class="wf-tag">WorldTracer</span><span class="wf-tag t">PIR</span><span class="wf-tag a">DOT Compensation</span></div></div></div>
+      </div>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test no-show bag offload: simulate passenger who checks in but doesn't board — verify BRS flags bag and ramp alert fires within SLA before gate close</li>
+        <li>Validate all 4 IATA 753 scan events are logged in BRS audit trail with correct timestamps, handler ID, and location</li>
+        <li>Test tight connection rush tag logic: when connection &lt;45 min, verify BRS triggers rush tag and sortation priority re-routes the bag</li>
+        <li>Test PIR creation: verify all mandatory WorldTracer fields are populated and interline data is shared with partner carrier BRS within defined SLA</li>
+        <li>Test bag tag uniqueness: generate high-volume tags and verify no duplicates within the same carrier's system on same day</li>
+        <li>Test excess baggage EMD creation: verify fee matches the fare rule for that ticket's cabin and fee schedule — currency conversion if international</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-teal">✈️</div><div style="flex:1"><div class="b-title">How Flights Are Tracked — ADS-B, ACARS &amp; OOOI</div><div class="b-sub">From flight plan filing to gate arrival — live position, status distribution, downstream triggers</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Flight tracking combines ATC radar, ADS-B transponder data, ACARS data link, and airline operations systems. Understanding these feeds is essential for building or testing real-time flight status systems, passenger notification platforms, and OTP reporting engines.</p>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-n">1</div><div class="wf-c"><div class="wf-title">Flight Plan Filing</div><div class="wf-desc">Dispatcher and captain co-file the flight plan with FAA (domestic via NASSTATUS) or international ICAO plan (via IFPS — European system). Plan includes: route, cruising altitude, fuel, alternate airports, estimated en-route time, and crew data. Filed copy goes to IOCC and is linked to the Operational Flight Record (OFR) in the airline's ops system.</div><div class="wf-tags"><span class="wf-tag">FAA NASSTATUS</span><span class="wf-tag t">Dispatch System</span><span class="wf-tag a">OFR</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">2</div><div class="wf-c"><div class="wf-title">OOOI Events — The Four Core Flight Timestamps</div><div class="wf-desc">Every flight transmits four mandatory ACARS messages that power all downstream systems:<br><br>• <strong>OUT:</strong> Door closed / pushback begins → DOT tarmac delay timer starts<br>• <strong>OFF:</strong> Wheels leave runway (takeoff) → block time calculation starts<br>• <strong>ON:</strong> Wheels touch runway (landing) → block time ends<br>• <strong>IN:</strong> Aircraft parked at gate / chocks in → A14 OTP record written, crew duty period closes, baggage belt assigned</div><div class="wf-tags"><span class="wf-tag">ACARS</span><span class="wf-tag t">IOCC Ops</span><span class="wf-tag a">OTP System</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">3</div><div class="wf-c"><div class="wf-title">ADS-B — Real-Time Position Broadcasting</div><div class="wf-desc">Aircraft broadcasts GPS position, altitude, speed, and heading every 0.5–2 seconds via its <strong>ADS-B Out transponder</strong>. Ground stations and satellites (Aireon — space-based ADS-B) receive signals globally. FlightAware and Flightradar24 aggregate this data and provide APIs used by airline ops systems.<br><br><strong>Mandatory in US</strong> above FL180 since January 2020 (FAA ADS-B Out mandate). Aircraft at lower altitudes tracked by primary/secondary radar. Over oceans: space-based ADS-B via Aireon provides pole-to-pole coverage.</div><div class="wf-tags"><span class="wf-tag">ADS-B Out</span><span class="wf-tag t">FlightAware API</span><span class="wf-tag a">Aireon (Space)</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">4</div><div class="wf-c"><div class="wf-title">ACARS Two-Way Data Link</div><div class="wf-desc">Beyond OOOI events, ACARS provides full two-way digital communication:<br><br><strong>Ground sends:</strong> Final load sheet (captain must accept via ACARS before pushback), weather uplinks (ATIS), ATC routing amendments, company messages<br><strong>Aircraft sends:</strong> Oceanic position reports every 10 minutes (where ADS-B unavailable), engine health data (ACMS), fuel state, OOOI confirmations<br><br>All ACARS messages are archived and auditable — important for maintenance and compliance purposes.</div><div class="wf-tags"><span class="wf-tag">ACARS</span><span class="wf-tag t">Load Sheet</span><span class="wf-tag a">Engine ACMS</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">5</div><div class="wf-c"><div class="wf-title">Flight Status Distribution to Downstream Systems</div><div class="wf-desc">IOCC ops system publishes ETD/ETA updates via <strong>AIDX (IATA Airport Data Exchange)</strong> or proprietary APIs to all downstream consumers:<br><br>• Airport FIDS (Flight Information Display Systems) — gate displays, departure boards<br>• Airline mobile app and website — passenger self-service<br>• Codeshare partner systems — partner airline shows correct status<br>• Ground handler systems — ramp, catering, cleaning dispatch<br>• Passenger notification engine — SMS, push notification, email alerts<br><br><strong>SLA:</strong> Each channel must update within 60 seconds of IOCC status change.</div><div class="wf-tags"><span class="wf-tag">AIDX</span><span class="wf-tag t">FIDS</span><span class="wf-tag a">Push/SMS</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">6</div><div class="wf-c"><div class="wf-title">Arrival — IN Event Downstream Cascade</div><div class="wf-desc">When the IN event is received by IOCC, it simultaneously triggers:<br><br>• A14 OTP record written (on-time or late vs. scheduled arrival)<br>• Crew duty period closed — rest period begins for FAR Part 117 calculation<br>• Baggage belt number pushed to BRS and passenger app<br>• Connecting passenger tight-connection alerts fired for passengers with &lt;45-min layover<br>• PSS coupon status update: O (open) → F (flown) — loyalty miles posting triggered</div><div class="wf-tags"><span class="wf-tag">IOCC</span><span class="wf-tag t">PSS Coupon</span><span class="wf-tag a">OTP Record</span></div></div></div>
+      </div>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test all 4 OOOI events individually: verify each triggers its correct downstream action — especially OUT→tarmac timer, IN→A14 record and crew duty close</li>
+        <li>Validate flight status push latency: simulate ETD update in IOCC and verify FIDS and passenger app update within &lt;60 seconds</li>
+        <li>Test ADS-B feed failover: when signal is lost (oceanic), verify system falls back to ACARS position reports without data gap or alert storm</li>
+        <li>Test connecting passenger alert: when IN event is late and a passenger has &lt;45 min to their next flight, verify tight-connection notification fires to gate and passenger</li>
+        <li>Test timezone and DST handling: all timestamps stored UTC, displayed local — test flights during the DST crossover hour (clocks change at 2 AM)</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-amber">💳</div><div style="flex:1"><div class="b-title">How Refunds Are Processed — Complete Flow</div><div class="b-sub">Void, INVOL, VOL, waivers, BSP settlement, DOT timelines — all testable</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Refund processing is one of the most compliance-heavy workflows in airline IT. It involves fare rules, waiver codes, BSP settlement, payment gateway reversal, and DOT-mandated timelines. Defects in refund logic are high-visibility and financially material.</p>
+      <div class="s-head">Refund Types — Know the Difference</div>
+      <ul class="blist amber">
+        <li><strong>Void:</strong> Ticket cancelled on the same day of issue — before midnight BSP/ARC settlement runs. Full face value returned, no penalty. Simplest path — reverses the ticketing transaction entirely. Coupon → V (Void)</li>
+        <li><strong>Involuntary Refund (INVOL):</strong> Airline-initiated — cancelled flight, DOT-defined significant delay (&gt;3 hrs domestic), denied boarding, or schedule change beyond passenger tolerance. Full refund mandatory by DOT. Fare rules do NOT apply. Must process within <strong>7 business days (credit card) or 20 business days (cash)</strong>. Coupon → R (Refunded)</li>
+        <li><strong>Voluntary Refund (VOL):</strong> Passenger-initiated — subject to fare rules. Non-refundable fares: $0 cash refund, retain as future travel credit (FTC) minus change fee. Refundable fares: full face value minus any applicable cancellation fee</li>
+        <li><strong>EMD Refund:</strong> Ancillary services (seat fees, bags, upgrades) have separate rules — typically non-refundable unless the associated flight is cancelled (INVOL). Must test EMD refund independent of base ticket</li>
+      </ul>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-n">1</div><div class="wf-c"><div class="wf-title">Refund Initiation &amp; Eligibility Check</div><div class="wf-desc">Agent or passenger initiates refund in PSS. System checks: coupon status must be O (Open — not flown, not already refunded or voided), waiver eligibility, and fare rules for the ticket's fare basis code. Partially flown tickets: only unflown coupons are eligible — system must determine which legs are refundable.</div><div class="wf-tags"><span class="wf-tag">PSS</span><span class="wf-tag t">Fare Rules Engine</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">2</div><div class="wf-c"><div class="wf-title">Penalty Computation &amp; Tax Handling</div><div class="wf-desc">System calculates: <strong>Refund Amount = Ticket Face Value − Penalty − Non-Refundable Taxes</strong>. Most US taxes (ATA, PFC, ZP segments) are refundable even on non-refundable base fares. Some international government taxes are non-refundable regardless of ticket type. Multi-currency tickets: refund in original purchase currency — exchange rate at time of original purchase applies.</div><div class="wf-tags"><span class="wf-tag">Fare Rules Engine</span><span class="wf-tag t">Tax Tables</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">3</div><div class="wf-c"><div class="wf-title">Waiver Application</div><div class="wf-desc">Waivers override fare rules — allowing refunds on otherwise non-refundable tickets. Types:<br>• <strong>SCW (Schedule Change Waiver):</strong> Airline changed flight time beyond tolerance threshold (typically &gt;2 hours)<br>• <strong>Weather/IROPS Waiver:</strong> Mass weather event — issued by airline operations<br>• <strong>Goodwill Waiver:</strong> Customer service — requires supervisor approval and audit trail<br>• <strong>Bereavement Waiver:</strong> Requires documentation (death certificate)<br>Each waiver type has an associated code stored in the PNR history for audit.</div><div class="wf-tags"><span class="wf-tag">Waiver Engine</span><span class="wf-tag t">PNR History</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">4</div><div class="wf-c"><div class="wf-title">Coupon Status Update &amp; Double-Refund Prevention</div><div class="wf-desc">PSS updates e-ticket coupon status: O → R (Refunded) or O → V (Void). This is the critical control preventing double-refund. Any subsequent attempt to refund the same coupon must be hard-rejected by the system. PNR history entry created with: agent ID, refund amount, reason code, waiver code (if applicable), and timestamp — full audit trail required.</div><div class="wf-tags"><span class="wf-tag">PSS Coupon</span><span class="wf-tag t">Revenue Acctg</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">5</div><div class="wf-c"><div class="wf-title">BSP / ARC Settlement</div><div class="wf-desc">For tickets sold via travel agents: refund processed through <strong>BSP (Bank Settlement Plan — IATA's clearing house, used internationally)</strong> or <strong>ARC (Airlines Reporting Corporation — US domestic equivalent)</strong>. Refund amount appears as a debit in the next weekly BSP/ARC billing cycle to the agent. Direct airline bookings: refund goes directly to original payment method via the airline's payment gateway.</div><div class="wf-tags"><span class="wf-tag">BSP / ARC</span><span class="wf-tag t">Payment Gateway</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">6</div><div class="wf-c"><div class="wf-title">Payment Return &amp; DOT Compliance</div><div class="wf-desc"><strong>Credit card:</strong> DOT mandates refund within 7 business days of INVOL event. Actual card statement appearance: 1–2 billing cycles (card issuer dependent).<br><strong>Cash/check:</strong> 20 business days (DOT mandate).<br><strong>Future Travel Credit (FTC):</strong> Immediate posting to passenger's loyalty account or airline travel bank — valid typically 12 months.<br><strong>Chargeback:</strong> If passenger disputes with card issuer, airline must respond within 20 days with evidence (PNR history, refund record, waiver code).</div><div class="wf-tags"><span class="wf-tag">DOT Compliance</span><span class="wf-tag t">Travel Bank</span><span class="wf-tag a">Chargeback</span></div></div></div>
+      </div>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test void same-day vs next-day: void on issue date = full refund, no penalty; refund request on day+1 must go through fare rules engine</li>
+        <li>Verify DOT INVOL refund timeline: trigger an airline-cancelled flight refund → verify credit card refund initiates within 7 business days (not calendar days — exclude weekends and US federal holidays)</li>
+        <li>Test partially flown ticket: JFK→ORD→LAX, passenger flew JFK→ORD but not ORD→LAX — verify only the unflown ORD→LAX coupon is eligible for refund</li>
+        <li>Test double-refund prevention: attempt to refund a coupon already in R (Refunded) status — system must hard-reject with error code, not just warn</li>
+        <li>Test waiver cascade: apply SCW waiver → verify penalty bypassed, full face value returned minus non-refundable taxes only</li>
+        <li>Test EMD refund independence: ancillary seat fee must refund when flight cancelled (INVOL), must NOT refund when flight operates normally and passenger no-shows</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-violet">💰</div><div style="flex:1"><div class="b-title">Airline Payments Flow — End to End</div><div class="b-sub">From booking to settlement — payment methods, fraud controls, BSP/ARC, and chargeback handling</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Airline payment processing is a complex, multi-party flow involving payment gateways, card schemes, acquiring banks, BSP/ARC clearing, and fraud prevention systems. Every step has compliance implications and potential failure points that must be tested.</p>
+      <div class="s-head">Payment Methods Accepted by Airlines</div>
+      <ul class="blist violet">
+        <li><strong>Credit &amp; Debit Cards:</strong> Visa, Mastercard, Amex, and local card schemes (e.g., UnionPay, RuPay). Most common for direct bookings. Card data handled by a PCI-DSS compliant payment gateway — airlines never store raw card numbers</li>
+        <li><strong>UATP (Universal Air Travel Plan):</strong> Aviation-specific charge card used by corporates and frequent travellers. Issued by airlines directly. Widely accepted in GDS transactions without card scheme fees</li>
+        <li><strong>BSP / ARC Cash:</strong> Travel agents settle ticket sales through BSP (international) or ARC (US domestic) — weekly financial clearing with the airline. The agent effectively extends credit to the passenger and settles net with the airline</li>
+        <li><strong>Airline Travel Bank / Credit Wallet:</strong> Stored value in the passenger's loyalty account (future travel credits, vouchers, compensation credits). Applied at booking as a full or partial payment. Must track expiry, fare restrictions, and currency</li>
+        <li><strong>Buy Now Pay Later (BNPL):</strong> Instalment payment options (Affirm, Klarna, Afterpay) increasingly offered on airline direct channels. The BNPL provider pays the airline upfront; the passenger repays in instalments</li>
+        <li><strong>PayPal / Digital Wallets:</strong> Apple Pay, Google Pay, PayPal accepted on direct airline websites and apps. Token-based — no card number transmitted to airline systems</li>
+        <li><strong>Cash at Airport:</strong> Some regions still accept cash at airport ticket offices or check-in. Increasingly rare for international carriers but important for regional and low-cost carriers in cash-heavy markets</li>
+      </ul>
+      <div class="s-head">Payment Flow — Direct Airline Booking</div>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-n">1</div><div class="wf-c"><div class="wf-title">Passenger Enters Payment Details</div><div class="wf-desc">Passenger enters card details on airline website or app. Payment page is served by the Payment Gateway (not the airline server) — card data never touches airline systems directly. PCI-DSS compliance requires this isolation. A tokenised reference is returned to the airline system instead of the card number.</div><div class="wf-tags"><span class="wf-tag">Payment Gateway</span><span class="wf-tag t">PCI-DSS</span><span class="wf-tag a">Tokenisation</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">2</div><div class="wf-c"><div class="wf-title">Fraud Screening</div><div class="wf-desc">Before authorisation request is sent, the transaction is screened by a fraud detection engine. Checks include: device fingerprint, IP geolocation vs. billing address, velocity checks (same card used multiple times in short period), BIN (Bank Identification Number) risk scoring, and 3D Secure (3DS) challenge trigger assessment. High-risk transactions require additional authentication or are declined automatically.</div><div class="wf-tags"><span class="wf-tag">Fraud Engine</span><span class="wf-tag t">3D Secure</span><span class="wf-tag a">BIN Check</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">3</div><div class="wf-c"><div class="wf-title">3D Secure Authentication (if triggered)</div><div class="wf-desc">3DS (Verified by Visa, Mastercard SecureCode) adds an extra authentication step — passenger redirected to their bank's authentication page (OTP, biometric, or app approval). Successful 3DS shifts fraud liability from airline to the card issuer. Failed 3DS can result in transaction decline. 3DS 2.0 supports frictionless flows for low-risk transactions where no passenger action is needed.</div><div class="wf-tags"><span class="wf-tag">3DS 2.0</span><span class="wf-tag t">Card Issuer</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">4</div><div class="wf-c"><div class="wf-title">Authorisation Request — Payment Gateway to Acquiring Bank</div><div class="wf-desc">Payment gateway sends an authorisation request to the airline's <strong>acquiring bank</strong> (the bank that processes card payments on behalf of the airline). The acquiring bank routes the request through the <strong>card scheme network</strong> (Visa/Mastercard rails) to the passenger's <strong>issuing bank</strong>. The issuing bank checks available credit and fraud rules, then returns an <strong>authorisation code</strong> (approved) or a decline code with reason.</div><div class="wf-tags"><span class="wf-tag">Acquiring Bank</span><span class="wf-tag t">Card Scheme</span><span class="wf-tag a">Issuing Bank</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">5</div><div class="wf-c"><div class="wf-title">Authorisation Response — PNR Ticketed</div><div class="wf-desc">Authorisation approved → Payment gateway returns approval to airline PSS → PSS issues e-ticket and marks PNR as ticketed (TK status). The authorisation at this stage is a <strong>hold</strong> on the passenger's funds — actual money movement happens at settlement. If authorisation is declined, PSS must not issue the ticket — the booking remains in a pending/failed state.</div><div class="wf-tags"><span class="wf-tag">PSS Ticketing</span><span class="wf-tag t">Auth Code</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">6</div><div class="wf-c"><div class="wf-title">Settlement — Capture and Fund Movement</div><div class="wf-desc">Settlement (actual fund movement) typically occurs within 24–48 hours of authorisation, or at ticket issuance in some configurations. The airline's acquiring bank batches settled transactions and transfers net funds to the airline's bank account after deducting interchange fees (paid to the issuing bank) and scheme fees. The passenger's card statement shows the charge at this point — not at authorisation.</div><div class="wf-tags"><span class="wf-tag">Settlement</span><span class="wf-tag t">Interchange Fee</span><span class="wf-tag a">Bank Transfer</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">7</div><div class="wf-c"><div class="wf-title">BSP / ARC Settlement (Agent Bookings)</div><div class="wf-desc">For tickets sold by travel agents through GDS: the agent collects payment from the passenger and settles with the airline via <strong>BSP</strong> (Bank Settlement Plan — IATA's clearing house for international markets) or <strong>ARC</strong> (Airlines Reporting Corporation — US domestic). BSP/ARC runs weekly billing cycles — agents remit net ticket sales to airlines and airlines process refund debits. Airlines receive consolidated weekly reports per GDS/agency.</div><div class="wf-tags"><span class="wf-tag">BSP/ARC</span><span class="wf-tag t">GDS</span><span class="wf-tag a">Weekly Billing</span></div></div></div>
+        <div class="wf-step"><div class="wf-n">8</div><div class="wf-c"><div class="wf-title">Chargeback Handling</div><div class="wf-desc">If a passenger disputes the charge with their card issuer (claiming fraud, service not provided, or amount dispute), the issuing bank initiates a <strong>chargeback</strong>. The acquiring bank notifies the airline — the disputed amount is temporarily reversed from the airline's account. The airline has a defined response window (typically 20–45 days depending on card scheme rules) to submit evidence: PNR history, boarding records, refund records, and 3DS authentication proof. If the airline wins, funds are returned. If lost, the chargeback stands and the airline bears the cost.</div><div class="wf-tags"><span class="wf-tag">Chargeback</span><span class="wf-tag t">Card Scheme Rules</span><span class="wf-tag a">Evidence Submission</span></div></div></div>
+      </div>
+      <div class="s-head">Ancillary Payment Flows</div>
+      <ul class="blist">
+        <li><strong>EMD (Electronic Miscellaneous Document):</strong> Ancillary services — seat selection, excess baggage, lounge access, upgrades — are charged and tracked via EMD. The EMD has its own document number, coupon status, and refund rules independent of the base ticket. A single booking may have multiple EMDs attached</li>
+        <li><strong>Split Payment:</strong> Passenger pays part with travel credit and part by card. PSS must handle multi-tender transactions — deducting travel bank balance first, then charging the remaining amount to card. Each tender has its own refund path if the flight is cancelled</li>
+        <li><strong>Currency and FX:</strong> International bookings may involve multiple currencies. Fare is quoted in the ticketing currency (usually the country of departure). Card is charged in the airline's billing currency or the card's home currency (DCC — Dynamic Currency Conversion). Exchange rate used must be locked at time of ticketing and recorded in the PNR</li>
+        <li><strong>Corporate / Invoice Billing:</strong> Some corporate accounts are billed via invoice rather than card — monthly or per-trip billing. Airline's AR (Accounts Receivable) system manages credit limits, invoice generation, and payment reconciliation for corporate accounts</li>
+      </ul>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test authorisation decline handling: simulate a declined card → verify PSS does NOT issue the ticket, booking remains unpaid, and passenger receives correct decline message with reason</li>
+        <li>Test 3DS flow: trigger a high-risk transaction → verify passenger is redirected to 3DS challenge → successful authentication completes payment; failed authentication declines transaction</li>
+        <li>Test tokenisation: verify raw card numbers never appear in airline system logs, PNR history, or database fields — only tokenised references should be stored</li>
+        <li>Test split payment: apply $150 travel credit to a $400 ticket → verify card is charged exactly $250, travel bank balance decremented by $150, and both tender records stored in PNR</li>
+        <li>Test chargeback evidence package: trigger a chargeback scenario → verify system automatically compiles PNR history, boarding record, and 3DS auth proof into the response package within the required window</li>
+        <li>Test BSP/ARC reconciliation: verify weekly settlement report totals match PSS ticketing records — any discrepancy must raise an alert in the revenue accounting system</li>
+        <li>Test currency lock: book an international ticket — verify exchange rate is locked at time of booking and does not fluctuate between booking and settlement</li>
+        <li>Test INVOL refund path: airline cancels flight → verify refund routes back to original payment method (card), not to travel bank — unless passenger explicitly chooses travel credit</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 5</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">ADS-B</div><div class="term-name">Automatic Dependent Surveillance–Broadcast</div><div class="term-desc">GPS-based aircraft position broadcast every 0.5–2 seconds. Mandatory in US above FL180 since 2020. Powers FlightAware, Flightradar24, and airline ops tracking systems.</div></div>
+    <div class="term-card"><div class="term-abbr">PIR</div><div class="term-name">Property Irregularity Report</div><div class="term-desc">Filed when a bag is lost, delayed, or damaged. Entered into WorldTracer — the global mishandled baggage database shared by 200+ airlines for worldwide bag matching and forwarding.</div></div>
+    <div class="term-card"><div class="term-abbr">BSP / ARC</div><div class="term-name">Bank Settlement Plan / Airlines Reporting Corp</div><div class="term-desc">Financial clearing houses for airline ticket sales and refunds between airlines and travel agents. BSP = international (IATA), ARC = US domestic. Weekly billing cycles.</div></div>
+    <div class="term-card"><div class="term-abbr">FTC</div><div class="term-name">Future Travel Credit</div><div class="term-desc">Non-cash refund to passenger's travel bank or loyalty account. Typically valid 12 months. May carry fare class restrictions. DOT now requires cash refund option for INVOL cancellations — FTC alone is not sufficient.</div></div>
+    <div class="term-card"><div class="term-abbr">ULD</div><div class="term-name">Unit Load Device</div><div class="term-desc">Standardised containers and pallets that fit aircraft cargo holds. Bags and cargo packed into ULDs for efficient bulk loading. Each ULD has a unique number tracked in the load system.</div></div>
+    <div class="term-card"><div class="term-abbr">INVOL</div><div class="term-name">Involuntary Refund / Change</div><div class="term-desc">Airline-initiated disruption: cancelled flight, major delay, denied boarding. Fare rules do NOT apply. DOT mandates: 7 business days (credit card), 20 days (cash). No exceptions.</div></div>
+    <div class="term-card"><div class="term-abbr">AIDX</div><div class="term-name">IATA Airport Data Exchange</div><div class="term-desc">IATA XML standard for sharing flight status between airlines, airports, and handlers. Powers FIDS displays, ground handler dispatch alerts, and passenger information systems.</div></div>
+    <div class="term-card"><div class="term-abbr">SCW</div><div class="term-name">Schedule Change Waiver</div><div class="term-desc">Waiver code applied to PNR when airline changes flight time beyond tolerance (typically &gt;2 hours). Overrides fare rules — allows refund or free rebooking on non-refundable tickets.</div></div>
+    <div class="term-card"><div class="term-abbr">UATP</div><div class="term-name">Universal Air Travel Plan</div><div class="term-desc">Aviation-specific charge card used by corporates and frequent travellers. Issued by airlines directly. Widely accepted in GDS without standard card scheme interchange fees.</div></div>
+    <div class="term-card"><div class="term-abbr">3DS</div><div class="term-name">3D Secure Authentication</div><div class="term-desc">Additional authentication step for card payments (Verified by Visa, Mastercard SecureCode). Shifts fraud liability to card issuer on successful authentication. 3DS 2.0 supports frictionless low-risk flows.</div></div>
+    <div class="term-card"><div class="term-abbr">PCI-DSS</div><div class="term-name">Payment Card Industry Data Security Standard</div><div class="term-desc">Mandatory security standard for all entities handling card data. Airlines must use certified payment gateways — raw card numbers must never be stored in airline systems. Tokenisation replaces card data with a reference token.</div></div>
+    <div class="term-card"><div class="term-abbr">Chargeback</div><div class="term-name">Card Payment Dispute</div><div class="term-desc">Passenger disputes a charge with their card issuer. Funds temporarily reversed from airline. Airline must respond with evidence (PNR, boarding records, 3DS proof) within card scheme response window or loses the dispute.</div></div>
+    <div class="term-card"><div class="term-abbr">DCC</div><div class="term-name">Dynamic Currency Conversion</div><div class="term-desc">Option allowing international passengers to be charged in their home currency rather than the airline billing currency. Exchange rate set by the airline or card scheme at time of transaction — must be locked and disclosed to the passenger.</div></div>
+  </div>
+
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 5</div><div class="quiz-hd-sub">Airline Workflows — Baggage, Flight Tracking &amp; Refunds</div></div><div class="q-badge" id="qb4">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody4"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl4">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog4" style="width:20%"></div></div></div><div class="quiz-q" id="qtext4"></div><div class="quiz-opts" id="qopts4"></div><div class="q-fb" id="qfb4"></div><div class="q-actions"><button class="btn-next" id="qnext4" onclick="nextQ(4)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone4"><div class="done-emoji" id="demoji4">🏆</div><div class="done-score" id="dscore4"></div><div class="done-lbl" id="dlbl4"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar4"></div></div><div class="done-msg" id="dmsg4"></div><button class="btn-retry" onclick="retryQ(4)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn4" onclick="markDone(4)">✓ Mark Module Complete</button></div>
+</section>
+<!-- ═══ MODULE 6 ═══ -->
+<section class="section-panel" id="tab5">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-green">Module 06</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Cabin Crew &amp; Ground Operations</div>
+    <div class="mod-desc">Understand the human teams that operate the aircraft and manage the turnaround. Essential context for testing crew management systems, ground handling integrations, safety compliance workflows, and turnaround management platforms.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Concepts at a Glance</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>Cabin Crew</strong>Safety professionals first — FA, Purser/ISD structure with FAA certificates</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>Flight Deck</strong>Captain (PIC) + First Officer — legally co-responsible with dispatcher</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>FAR Part 121</strong>Minimum 1 FA per 50 seats — hard ratio, no override possible</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>Turnaround Teams</strong>8–10 parallel teams must finish within MTT window</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>Load Sheet</strong>W&amp;B document — captain must accept via ACARS before pushback</div></div>
+      <div class="kc-item"><div class="kc-dot" style="background:var(--green)"></div><div class="kc-text"><strong>FOD</strong>Foreign Object Damage — ramp debris costs aviation ~$4B/year globally</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-blue">👩‍✈️</div><div style="flex:1"><div class="b-title">Cabin Crew — Roles, Structure &amp; Compliance</div><div class="b-sub">Who they are, what they do, and what regulations govern their scheduling</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Cabin crew are primarily safety professionals — service is secondary to their regulatory safety function. Understanding their roles and legal requirements is critical for testing crew management, scheduling, and compliance systems.</p>
+      <div class="s-head">Flight Deck Crew</div>
+      <ul class="blist">
+        <li><strong>Captain (PIC — Pilot in Command):</strong> Legally responsible for safety of aircraft, crew, and passengers. Final authority on all operational decisions including diversion, fuel uplift, and passenger removal. Holds FAA Airline Transport Pilot (ATP) certificate — minimum 1,500 flight hours (250 for military). Highest seniority on the pairing</li>
+        <li><strong>First Officer (FO / Co-Pilot):</strong> Operates aircraft equally with captain — "Pilot Flying" and "Pilot Monitoring" roles alternate each leg. Post-Colgan Air regulations (2013): Restricted ATP required — minimum 1,000 hours at Part 121 carriers. Fully qualified to fly the aircraft at all times</li>
+        <li><strong>Relief Crew (Long-Haul &gt;12 hrs):</strong> Additional pilots and flight attendants rotate in crew rest areas. FAR Part 117 governs maximum flight duty periods based on augmentation level (2-pilot, 3-pilot, 4-pilot operations)</li>
+      </ul>
+      <div class="s-head">Cabin Crew Roles</div>
+      <ul class="blist teal">
+        <li><strong>Purser / Inflight Service Director (ISD):</strong> Senior cabin crew member in charge. Responsible for crew safety briefing, cabin compliance, passenger service standards, and all communication with the flight deck. Typically requires 3–5 years as FA plus additional certification and annual recurrent training</li>
+        <li><strong>Flight Attendants (FAs):</strong> FAR Part 121 Subpart T: minimum <strong>1 FA per 50 passenger seats</strong> — this is a hard FAA requirement. A B737-800 (162 seats) requires minimum 4 FAs. FAs hold FAA Flight Attendant Certificate with aircraft-specific qualification — recurrent training required annually</li>
+        <li><strong>Primary FA role is safety:</strong> Emergency evacuation command, safety demonstrations, hazmat identification, first aid, defibrillator (AED) operation, restraint of disruptive passengers. Service (meals, drinks) is secondary</li>
+      </ul>
+      <div class="s-head">Key Compliance Rules for Crew Systems</div>
+      <ul class="blist rose">
+        <li><strong>FAR Part 117:</strong> Maximum flight duty periods (8–14 hrs depending on augmentation and start time), minimum rest between duty periods (10 hrs), cumulative limits: 100 hrs in any 672-hour period, 1,000 hrs per calendar year</li>
+        <li><strong>Pre-flight Briefing:</strong> Legally required for every flight — covers emergency procedures, special passengers (UMNR, WCHR, MEDA), exit seating eligibility, and catering. Must be documented in the crew records system</li>
+        <li><strong>FAA Drug &amp; Alcohol Testing:</strong> Random mandatory programme. Positive result = immediate removal from duty. Crew management system must flag grounded crew and trigger open-time coverage workflow</li>
+        <li><strong>Exit Row Seating:</strong> FAA requires cabin crew to assess exit row passengers for physical and language ability — handled via DCS seat assignment rules and SSR codes. Non-compliant assignment is a safety defect</li>
+      </ul>
+      <div class="callout c-warn"><span class="callout-ico">⚠️</span><div><strong>QA Note:</strong> FAR Part 117 limits are <strong>hard blocks</strong> — the crew management system must automatically REJECT any assignment exceeding them. No warning-only handling is acceptable. Test at the limit (accept), one unit over the limit (hard reject), and verify a full audit trail is created on rejection.</div></div>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-green">🛬</div><div style="flex:1"><div class="b-title">Ground Operations — Full Turnaround Breakdown</div><div class="b-sub">Every team, every task — from block-in to pushback in 35 minutes</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">A successful aircraft turnaround requires 8–10 teams working in parallel within a tight MTT window. Understanding this choreography is essential for testing turnaround management platforms, ground ops integration systems, and milestone tracking tools.</p>
+      <div class="s-head">The 10 Ground Operation Teams</div>
+      <ul class="blist green">
+        <li><strong>Aircraft Marshallers / Wing Walkers:</strong> Guide aircraft into gate using hand signals or electronic VDGS (Visual Docking Guidance System). Prevent gate strikes. First team to engage on arrival. VDGS shows aircraft type, distance, and lateral alignment in real time</li>
+        <li><strong>Ramp Agents:</strong> Chock wheels, connect GPU (Ground Power Unit) and PCA (Pre-Conditioned Air), position jetbridge or air stairs. Operate all ramp equipment. GPU preferred over aircraft APU — saves ~120 kg fuel/hr</li>
+        <li><strong>Baggage Handlers (Belly Crew):</strong> Offload arriving bags in reverse load order, then load departing bags per load plan. Operate tugs, carts, belt loaders, and ULD handlers. Most physically demanding turnaround task</li>
+        <li><strong>Fuelling Team:</strong> Connects fuel truck — quantity specified by dispatcher/load planner in <em>kg or lbs</em> (never litres/gallons — fuel density varies with temperature). Captain must approve final fuel quantity before fuelling begins. Runs in parallel with boarding</li>
+        <li><strong>Catering Team:</strong> Catering trucks dock at galley doors. Remove used meal carts, uplift new meals, beverages, and duty-free. Uplift quantity per class matched to passenger load + crew allocation — managed by a catering system integrated with the PSS manifest</li>
+        <li><strong>Cabin Cleaning Crew:</strong> Rapid clean between flights — lavatories, seat pockets, tray tables, overhead bins checked. Cleaning completion is a critical gate for boarding start — cabin crew must certify cabin ready</li>
+        <li><strong>Aircraft Line Maintenance Tech:</strong> Walk-around inspection each departure. Clears any MEL items, checks fluid levels, tyre pressure, and visible structure. Signs off the Technical Log (Tech Log) — legally required before flight release. Cannot be skipped regardless of schedule pressure</li>
+        <li><strong>Load Planner / Ground Controller:</strong> Produces the load plan and W&amp;B (weight-and-balance) calculation. Distributes bags, cargo, and fuel loads to keep aircraft CG within certified limits. Sends final <strong>load sheet to flight crew via ACARS</strong> — captain must formally accept before pushback is authorised</li>
+        <li><strong>Pushback Crew (Tug Operator):</strong> Connects tug to nose gear. Headset communication with captain throughout pushback. Releases aircraft to taxi under own power once clear of gate. Records the OUT event trigger — critical ACARS timestamp</li>
+        <li><strong>Gate Agent (DCS Departure Control):</strong> Manages boarding gate — scans boarding passes, processes upgrades/standbys, manages denied boarding, closes gate at T-10, sends final passenger count to load planner and captain</li>
+      </ul>
+      <div class="s-head">B737 Turnaround Timeline (35-min MTT)</div>
+      <div class="wf-steps">
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+0</div><div class="wf-c"><div class="wf-title">Block-In — Aircraft Parks at Gate</div><div class="wf-desc">Chocks in, GPU connected, jetbridge docked. Baggage offload begins simultaneously with deplaning. Cleaning crew stages at jetbridge.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+5</div><div class="wf-c"><div class="wf-title">Deplaning Complete — Cleaning Enters</div><div class="wf-desc">Last arriving passenger off. Cleaning crew enters aircraft immediately. Catering truck docks, used cart swap begins. Arriving bags still being offloaded.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+10</div><div class="wf-c"><div class="wf-title">Fuelling &amp; Baggage Loading Begins</div><div class="wf-desc">Fuel truck connects — fuelling starts. Forward and aft hold departing bag loading begins. Load planner finalising W&amp;B calculation with real-time bag and fuel data.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+15</div><div class="wf-c"><div class="wf-title">Boarding Opens</div><div class="wf-desc">Gate agent opens boarding. Pre-board first: WCHR, UMNR, active military, families with infants. Then Group 1 → Group 4. Fuelling continues in parallel. Flight crew completes pre-flight checks.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+28</div><div class="wf-c"><div class="wf-title">Boarding Complete / Doors Armed</div><div class="wf-desc">Gate agent confirms boarding complete and sends final passenger count. Cabin crew arm doors. Load planner sends load sheet via ACARS. Fuelling complete — fuel sheet signed.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+30</div><div class="wf-c"><div class="wf-title">Captain Accepts Load Sheet — Doors Closed</div><div class="wf-desc">Captain reviews and accepts load sheet via ACARS — legally required before pushback. All cargo hold doors closed and locked. Ground crew clear of aircraft.</div></div></div>
+        <div class="wf-step"><div class="wf-n" style="border-color:var(--green);color:var(--green2)">+35</div><div class="wf-c"><div class="wf-title">Pushback — OUT Event Fires</div><div class="wf-desc">ATC pushback clearance received. Tug connects, headset communication confirmed. Aircraft moves. ACARS transmits OUT event. D0 clock: was pushback exactly at STD?</div></div></div>
+      </div>
+      <div class="callout c-danger"><span class="callout-ico">🚨</span><div><strong>FOD — Foreign Object Damage/Debris:</strong> Any ramp debris (tools, bolts, safety cones, catering packaging) can be ingested by engines or damage tyres — causing immediate AOG. FOD walks (manual ramp sweeps) are mandatory before every aircraft movement. Industry cost: ~$4 billion/year globally. Airlines integrate FOD incident reporting into ramp management systems.</div></div>
+      <div class="qa-box"><div class="qa-title">🧪 Testing Considerations</div><ul class="qa-list">
+        <li>Test turnaround milestone tracking: each team's completion stamp must be recorded — MTT warning must fire automatically if any milestone falls behind schedule</li>
+        <li>Validate load sheet acceptance workflow: captain rejects load sheet via ACARS → system must require a revised W&amp;B submission before OUT event can be recorded — no bypass</li>
+        <li>Test boarding gate closure: gate closes at configurable T-10 min — verify system rejects boarding pass scans after gate close time with correct error</li>
+        <li>Test WCHR/UMNR pre-board priority: SSR codes on PNR must trigger priority boarding flag in DCS — verify pre-board group appears correctly at gate agent screen</li>
+        <li>Test minimum FA ratio enforcement: if a FA is removed from a flight (illness, duty limit), verify system checks remaining FA count against Part 121 ratio and blocks departure release if below minimum</li>
+        <li>Test GPU vs APU fuel accounting: when GPU is connected, APU must show as off in aircraft systems log — fuel burn reporting must reflect this correctly</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Key Terminologies — Module 6</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">PIC</div><div class="term-name">Pilot in Command</div><div class="term-desc">The captain — legally responsible for the safety of the aircraft, crew, and passengers. Final authority on all operational decisions. Co-responsible with the dispatcher for each flight under FAR Part 121.</div></div>
+    <div class="term-card"><div class="term-abbr">ATP</div><div class="term-name">Airline Transport Pilot Certificate</div><div class="term-desc">Highest FAA pilot certification — requires 1,500 flight hours (250 for military graduates). Mandatory for all captains at US Part 121 carriers. First Officers require Restricted ATP (1,000 hrs).</div></div>
+    <div class="term-card"><div class="term-abbr">GPU</div><div class="term-name">Ground Power Unit</div><div class="term-desc">External electrical power supply connected to aircraft at gate — powers avionics, lighting, and air conditioning without running the APU. Saves ~120 kg of fuel per hour compared to APU operation.</div></div>
+    <div class="term-card"><div class="term-abbr">APU</div><div class="term-name">Auxiliary Power Unit</div><div class="term-desc">Small turbine in the aircraft tail providing power and air conditioning when engines are off and GPU not connected. Fuel burn ~120 kg/hr — airlines prefer GPU for cost and emissions reasons.</div></div>
+    <div class="term-card"><div class="term-abbr">VDGS</div><div class="term-name">Visual Docking Guidance System</div><div class="term-desc">Electronic display at gates guiding pilots to the correct stop position — shows aircraft type, distance to stop, and lateral alignment in real time. Reduces gate strikes significantly.</div></div>
+    <div class="term-card"><div class="term-abbr">FOD</div><div class="term-name">Foreign Object Damage / Debris</div><div class="term-desc">Any ramp debris capable of damaging aircraft. FOD walks are mandatory before every aircraft movement. Cost to aviation industry: ~$4 billion/year globally. Integrated into ramp management reporting.</div></div>
+    <div class="term-card"><div class="term-abbr">Tech Log</div><div class="term-name">Aircraft Technical Log</div><div class="term-desc">Mandatory legal document signed by Line Maintenance tech before every departure. Records aircraft status, MEL deferrals, and maintenance actions. No Tech Log sign-off = no departure.</div></div>
+    <div class="term-card"><div class="term-abbr">ISD</div><div class="term-name">Inflight Service Director / Purser</div><div class="term-desc">Senior cabin crew member in charge of the cabin. Responsible for crew safety briefing, compliance with regulations, service delivery standards, and all flight deck communications on behalf of the cabin.</div></div>
+  </div>
+
+    
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 6</div><div class="quiz-hd-sub">Cabin Crew &amp; Ground Operations</div></div><div class="q-badge" id="qb5">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody5"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl5">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog5" style="width:20%"></div></div></div><div class="quiz-q" id="qtext5"></div><div class="quiz-opts" id="qopts5"></div><div class="q-fb" id="qfb5"></div><div class="q-actions"><button class="btn-next" id="qnext5" onclick="nextQ(5)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone5"><div class="done-emoji" id="demoji5">🏆</div><div class="done-score" id="dscore5"></div><div class="done-lbl" id="dlbl5"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar5"></div></div><div class="done-msg" id="dmsg5"></div><button class="btn-retry" onclick="retryQ(5)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Expand all sections &amp; complete the quiz before marking done.</span><button class="btn-done" id="dbtn5" onclick="markDone(5)">✓ Mark Module Complete</button></div>
+</section>
+
+<!-- ═══ MODULE 7 ═══ -->
+<section class="section-panel" id="tab6">
+  <div class="mod-header">
+    <div class="mod-eyebrow"><span class="mod-tag tag-blue">Module 07</span><div class="mod-rule"></div></div>
+    <div class="mod-title">Compliance, Testing &amp; QA Reference</div>
+    <div class="mod-desc">The regulatory requirements that create the most critical test cases. Non-compliance means fines up to $37,500 per passenger, aircraft groundings, or safety incidents. These rules are non-negotiable hard requirements — not configurable business rules.</div>
+  </div>
+  <div class="kc-box">
+    <div class="kc-label">Key Compliance Rules for Testers</div>
+    <div class="kc-grid">
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>DOT Part 250</strong>IDB compensation: 200–400% one-way fare, paid same day in cash</div></div>
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>Tarmac Delay Rule</strong>3 hr domestic / 4 hr international — hard limit before mandatory deplaning</div></div>
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>IATA Res 753</strong>4-point bag scan mandatory every flight — full audit trail required</div></div>
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>FAR Part 117</strong>Crew duty hours are hard blocks — no assignment override possible</div></div>
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>DOT Refund SLA</strong>7 business days (credit card) · 20 business days (cash) — INVOL mandatory</div></div>
+      <div class="kc-item"><div class="kc-dot"></div><div class="kc-text"><strong>APIS / CBP</strong>Passenger manifest submitted to border agency before international departure</div></div>
+    </div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-rose">⚖️</div><div style="flex:1"><div class="b-title">Regulatory Compliance Test Cases</div><div class="b-sub">The regulations that create mandatory, non-negotiable test scenarios with real penalties</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <p class="c-intro">Every regulation below has been tested in production by real airline systems and has resulted in DOT enforcement actions, FAA certificate penalties, or safety incidents when not implemented correctly. These are your highest-priority test cases.</p>
+      <table class="comp-table">
+        <thead><tr><th>Regulation</th><th>What It Requires</th><th>Key Test Scenario</th><th>Penalty for Failure</th></tr></thead>
+        <tbody>
+          <tr><td>DOT 14 CFR 250<br>Denied Boarding</td><td>IDB compensation: &lt;2 hr delay = 200% one-way fare (max $775). &gt;2 hr delay = 400% (max $1,550). Must be paid same day in cash/cheque — not vouchers unless passenger agrees</td><td>Oversell scenario: verify IDB calc uses one-way fare basis, not round-trip. Verify payment SLA enforced. Test VDB offer workflow fires before IDB is triggered</td><td>Up to $27,500 per passenger</td></tr>
+          <tr><td>DOT Tarmac Delay Rule<br>14 CFR 259</td><td>Domestic: aircraft must return to gate after 3 hrs on tarmac. International: 4 hrs. Exceptions: safety/security, ATC directive. Food/water required after 2 hrs</td><td>Simulate tarmac timer from OUT event. Verify internal alert at 2h 30m and hard-stop action required at 2h 59m. Test food/water service trigger at 2h 00m. Test clock stops correctly when aircraft parks at gate</td><td>Up to $37,500 per passenger</td></tr>
+          <tr><td>DOT 14 CFR 382<br>Disability Rights</td><td>WCHR must be available at all airports. MEDA passengers must receive assistance. UMNR must be escorted from check-in to destination guardian. Exit row: crew must assess and re-seat ineligible passengers</td><td>Verify SSR codes (WCHR, MEDA, UMNR) trigger correct handling at check-in, boarding, and transfer. Test MEDA clearance workflow. Test exit row re-seat when passenger cannot perform emergency duties</td><td>DOT civil penalty + reputational risk</td></tr>
+          <tr><td>FAR Part 117<br>Crew Duty Hours</td><td>All crew duty-hour limits are hard blocks — no assignment may be created that exceeds them. No override. Audit trail required on every rejected assignment</td><td>Assign crew to pairing at limit (accept), one minute over limit (hard reject). Verify error code, rejection reason, and audit record all written correctly. Test rest period calculation including deadhead travel time</td><td>FAA certificate action, fines up to $25,000 per violation</td></tr>
+          <tr><td>IATA Resolution 753<br>Bag Tracking</td><td>4 mandatory scan checkpoints per bag per flight: induction, sortation, aircraft load, arrival delivery. Full audit trail retained. No-show bag offload is mandatory — non-negotiable security rule</td><td>Simulate missing scan at checkpoint 3 (aircraft load) — verify BRS raises alert and blocks flight departure release. Test no-show offload: NS status must trigger bag offload alert within SLA</td><td>IATA compliance audit failure; carrier liability for lost bags</td></tr>
+          <tr><td>CBP APIS<br>International Flights</td><td>Passenger passport, DOB, nationality data must be submitted to CBP before international departure — typically 60 min before STD. Response must be received and validated before boarding commences</td><td>Test APIS submission at T-61, T-60, T-59 min. Test CBP rejection handling — system must flag passenger and trigger gate agent alert. Test retry logic on network failure with exponential backoff</td><td>DOT fines + potential flight hold by CBP</td></tr>
+          <tr><td>DOT Refund SLA<br>INVOL Events</td><td>Credit card refunds within 7 business days of INVOL event. Cash refunds within 20 business days. FTC (travel credit) alone is not acceptable for INVOL cancellations — cash/card refund must be offered</td><td>Trigger INVOL refund and verify initiation timestamp. Test business day calculation: exclude weekends and all US federal holidays. Test that FTC-only path is blocked for INVOL — cash option must be surfaced</td><td>DOT enforcement + passenger lawsuits</td></tr>
+          <tr><td>FAR Part 121 Subpart T<br>Crew Ratios</td><td>Minimum 1 FA per 50 seats. FAs must hold current FAA FA Certificate for that specific aircraft type. Pre-flight safety briefing must be documented in crew records</td><td>Remove an FA from flight manifest — verify system checks remaining count against Part 121 ratio and blocks departure release if below minimum. Test cross-qualification: FA certified on A320 cannot fly B737 without type rating</td><td>FAA certificate action; potential flight grounding</td></tr>
+        </tbody>
+      </table>
+    </div></div>
+  </div>
+
+  <div class="block" onclick="toggleBlock(this)">
+    <div class="block-hdr"><div class="b-icon bi-violet">🧪</div><div style="flex:1"><div class="b-title">QA Testing Strategy for Airline Systems</div><div class="b-sub">High-risk areas, edge cases, data requirements, and regression test approach</div></div><span class="b-chev">⌄</span></div>
+    <div class="b-body"><div class="b-inner">
+      <div class="s-head">Highest-Risk Test Areas</div>
+      <ul class="blist violet">
+        <li><strong>Concurrency:</strong> Multiple agents modifying the same PNR simultaneously — race conditions can cause seat double-booking or data corruption. Test with 10+ concurrent modification scenarios</li>
+        <li><strong>Timezone &amp; UTC handling:</strong> All OOOI timestamps, duty-hour calculations, and schedule times must be stored in UTC and displayed in correct local time. A 1-minute error in timezone conversion can cause a crew duty-hour calculation to incorrectly accept or reject an assignment</li>
+        <li><strong>Date Line crossings:</strong> LAX→SYD crosses the International Date Line — arrival date is +2 days from departure. Block time, duty hours, and OTP calculations must handle this correctly without overflow or negative duration</li>
+        <li><strong>DST Transitions:</strong> US clocks change at 2:00 AM in March and November. Flights during the crossover can have ambiguous or duplicate timestamps. Test the 2:00 AM hour specifically — clocks spring forward (missing hour) or fall back (duplicate hour)</li>
+        <li><strong>Overbooking edge cases:</strong> When all overbooked passengers show — denied boarding logic must run in strict priority order: VDB offers first (with correct escalating compensation amounts), then IDB only after VDB fails to fill the gap</li>
+        <li><strong>Multi-carrier refund proration:</strong> On a 3-segment codeshare itinerary (AA + BA + QF), when one segment is cancelled, the proration of the refund across three carriers' fare rules is extremely complex. Test with real multi-carrier test PNRs</li>
+      </ul>
+      <div class="s-head">Test Data Requirements</div>
+      <ul class="blist">
+        <li>PNR test dataset covering all SSR types: WCHR, WCHC, WCHS, UMNR, MEDA, VGML, KSML, DEAF, BLND — each must have corresponding handling test</li>
+        <li>Multi-carrier codeshare itineraries with partner airline PNR cross-references and interline bag through-check scenarios</li>
+        <li>Crew pairings testing boundary conditions of FAR Part 117: exactly at limit (should accept), one minute/hour over limit (must reject), and post-rest re-assignment (must correctly reset counter)</li>
+        <li>International flights requiring APIS data — use synthetic but format-valid passport data (correct checksum, valid country codes, correct date formats)</li>
+        <li>Refund scenarios matrix: void, voluntary non-refundable, voluntary refundable, involuntary (airline cancel), involuntary (significant delay), waiver types (SCW, weather, bereavement, goodwill), partially-flown, multi-currency</li>
+        <li>OOOI event test scenarios: normal sequence, out-of-order events (ON before OFF — should be rejected), missing events (aircraft lands without OFF recorded), and duplicate events</li>
+      </ul>
+      <div class="s-head">Regression Test Library — Golden Scenarios</div>
+      <ul class="blist teal">
+        <li>Build a <strong>"golden flight" scenario library</strong> — canonical PNRs, crew pairings, and flight states covering all edge cases. Run after every release as a mandatory regression gate</li>
+        <li>Include at least one of each: UMNR itinerary, IDB compensation calculation, INVOL refund with 7-day SLA validation, crew pairing at FAR 117 boundary, baggage no-show offload, and APIS submission with CBP response handling</li>
+        <li>Performance regression: PSS PNR creation must complete in &lt;2 seconds under 1,000 concurrent bookings. DCS check-in must complete in &lt;1 second. AVS availability update must propagate to GDS in &lt;30 seconds</li>
+        <li>Compliance regression: any code change in refund, crew scheduling, or baggage reconciliation modules should trigger a full compliance regression run — these are the highest-cost defect areas post-production</li>
+      </ul>
+      <div class="callout c-success"><span class="callout-ico">✅</span><div><strong>Engineer Best Practice:</strong> For every compliance regulation in the table above, create a dedicated test suite folder. Name test cases with the regulation reference (e.g., DOT_CFR250_IDB_Compensation_Calculation). This makes it instantly clear which regulatory obligation a failing test case maps to — critical during DOT audit responses and post-incident reviews.</div></div>
+    </div></div>
+  </div>
+
+  <div class="s-head" style="margin-top:28px">Master Abbreviation Reference — All 7 Modules</div>
+  <div class="term-grid">
+    <div class="term-card"><div class="term-abbr">PNR</div><div class="term-name">Passenger Name Record</div><div class="term-desc">6-char booking locator in PSS — full itinerary, ticket, SSRs, payment. Spine of all passenger-facing operations.</div></div>
+    <div class="term-card"><div class="term-abbr">GDS</div><div class="term-name">Global Distribution System</div><div class="term-desc">Amadeus / Sabre / Travelport — connects airline inventory to travel agents and OTAs worldwide.</div></div>
+    <div class="term-card"><div class="term-abbr">PSS</div><div class="term-name">Passenger Service System</div><div class="term-desc">Mission-critical core: reservations, inventory, ticketing, PNR lifecycle, loyalty. 15-min downtime = $500k+ loss.</div></div>
+    <div class="term-card"><div class="term-abbr">DCS</div><div class="term-name">Departure Control System</div><div class="term-desc">Airport system: check-in, seat assign, boarding gate, W&amp;B, boarding pass. Interfaces with PSS and BRS.</div></div>
+    <div class="term-card"><div class="term-abbr">BRS</div><div class="term-name">Baggage Reconciliation System</div><div class="term-desc">IATA Res 753 bag tracking — 4 mandatory scan checkpoints. No-show offload enforcement. WorldTracer integration.</div></div>
+    <div class="term-card"><div class="term-abbr">IOCC</div><div class="term-name">Integrated Operations Control Center</div><div class="term-desc">24/7 airline nerve centre — owns all live flight, crew, and aircraft decisions. IROPS recovery hub.</div></div>
+    <div class="term-card"><div class="term-abbr">MRO</div><div class="term-name">Maintenance, Repair &amp; Overhaul</div><div class="term-desc">Aircraft airworthiness. Line maintenance daily, heavy checks (C/D) periodically. AOG = highest priority.</div></div>
+    <div class="term-card"><div class="term-abbr">IROPS</div><div class="term-name">Irregular Operations</div><div class="term-desc">Mass disruption state — weather, ATC, AOG, security. Triggers IOCC recovery: re-protect, rebook, compensate.</div></div>
+    <div class="term-card"><div class="term-abbr">AOG</div><div class="term-name">Aircraft on Ground</div><div class="term-desc">Aircraft non-airworthy — maintenance emergency. Cascades to 3–5 rotations. $50k–$500k per event.</div></div>
+    <div class="term-card"><div class="term-abbr">W&amp;B</div><div class="term-name">Weight &amp; Balance</div><div class="term-desc">Pre-flight calculation ensuring total weight and centre of gravity are within certified limits. Captain must accept load sheet via ACARS. Legally required.</div></div>
+    <div class="term-card"><div class="term-abbr">OOOI</div><div class="term-name">Out – Off – On – In</div><div class="term-desc">4 ACARS flight timestamps powering OTP, duty hours, tarmac timer, coupon status, and all downstream systems. Must be stored UTC.</div></div>
+    <div class="term-card"><div class="term-abbr">ADS-B</div><div class="term-name">Automatic Dependent Surveillance–Broadcast</div><div class="term-desc">GPS position broadcast every 0.5–2 sec. Mandatory US above FL180. Powers real-time flight tracking globally.</div></div>
+    <div class="term-card"><div class="term-abbr">ASM / RPM</div><div class="term-name">Available / Revenue Seat Miles</div><div class="term-desc">ASM = capacity offered (seats × miles). RPM = capacity consumed (paying pax × miles). Load Factor = RPM ÷ ASM.</div></div>
+    <div class="term-card"><div class="term-abbr">RASM / CASM</div><div class="term-name">Revenue / Cost per ASM</div><div class="term-desc">Core profitability spread. RASM &gt; CASM = profitable operation. Measured in cents per seat mile.</div></div>
+    <div class="term-card"><div class="term-abbr">MCT</div><div class="term-name">Minimum Connection Time</div><div class="term-desc">Shortest allowable layover per airport/terminal pair. Varies domestic vs international. Systems must validate every booked connection.</div></div>
+    <div class="term-card"><div class="term-abbr">APIS</div><div class="term-name">Advance Passenger Information System</div><div class="term-desc">Passport/DOB/nationality data submitted to CBP before international departure. Mandatory. Test timing, field validation, retry logic.</div></div>
+    <div class="term-card"><div class="term-abbr">NDC</div><div class="term-name">New Distribution Capability</div><div class="term-desc">IATA XML standard (21.3) replacing GDS legacy EDIFACT. Enables direct airline offer distribution. Major carriers migrating now.</div></div>
+    <div class="term-card"><div class="term-abbr">EMD</div><div class="term-name">Electronic Miscellaneous Document</div><div class="term-desc">IATA ticket for ancillary services: bag fees, seat upgrades, lounge access. Linked to master e-ticket. Has own coupon lifecycle.</div></div>
+    <div class="term-card"><div class="term-abbr">BSP / ARC</div><div class="term-name">Bank Settlement Plan / Airlines Reporting Corp</div><div class="term-desc">Financial clearing houses for airline-agent ticket sales and refunds. BSP = international (IATA), ARC = US domestic. Weekly billing cycles.</div></div>
+    <div class="term-card"><div class="term-abbr">MEL</div><div class="term-name">Minimum Equipment List</div><div class="term-desc">FAA-approved list of inoperative items still allowing dispatch. Time-limited deferrals: A=3d, B=10d, C=120d. Tracked live in IOCC.</div></div>
+    <div class="term-card"><div class="term-abbr">SSR / OSI</div><div class="term-name">Special Service Request / Other Service Info</div><div class="term-desc">SSR = active handling required (WCHR, UMNR, MEDA). OSI = informational only (loyalty number). SSR codes must trigger service actions at every touchpoint.</div></div>
+    <div class="term-card"><div class="term-abbr">IDB / VDB</div><div class="term-name">Involuntary / Voluntary Denied Boarding</div><div class="term-desc">VDB = volunteer gives up seat for compensation. IDB = passenger bumped against will. IDB triggers DOT compensation: 200–400% one-way fare, paid same day.</div></div>
+    <div class="term-card"><div class="term-abbr">PIR</div><div class="term-name">Property Irregularity Report</div><div class="term-desc">Filed for lost, delayed, or damaged bags. Entered into WorldTracer — global mishandled bag database shared by 200+ airlines for worldwide tracking.</div></div>
+    <div class="term-card"><div class="term-abbr">ULD</div><div class="term-name">Unit Load Device</div><div class="term-desc">Standardised containers/pallets for aircraft cargo holds. Each has a unique number tracked in the load system. Bags packed into ULDs for bulk loading efficiency.</div></div>
+  </div>
+
+    
+    
+    
+    
+    
+  </div>
+
+  <div class="quiz-wrap">
+    <div class="quiz-hd"><div><div class="quiz-hd-title">Knowledge Check — Module 7</div><div class="quiz-hd-sub">Compliance, Testing &amp; QA Reference</div></div><div class="q-badge" id="qb6">0 / 5</div></div>
+    <div class="quiz-bd" id="qbody6"><div class="q-prog-row"><span class="q-prog-lbl" id="qlbl6">Q1 / 5</span><div class="q-prog-track"><div class="q-prog-fill" id="qprog6" style="width:20%"></div></div></div><div class="quiz-q" id="qtext6"></div><div class="quiz-opts" id="qopts6"></div><div class="q-fb" id="qfb6"></div><div class="q-actions"><button class="btn-next" id="qnext6" onclick="nextQ(6)">Next →</button></div></div>
+    <div class="quiz-done" id="qdone6"><div class="done-emoji" id="demoji6">🏆</div><div class="done-score" id="dscore6"></div><div class="done-lbl" id="dlbl6"></div><div class="done-bar-wrap"><div class="done-bar" id="dbar6"></div></div><div class="done-msg" id="dmsg6"></div><button class="btn-retry" onclick="retryQ(6)">↺ Retake</button></div>
+  </div>
+  <div class="mod-footer"><span class="footer-note">Complete all 7 modules to finish the training programme.</span><button class="btn-done" id="dbtn6" onclick="markDone(6)">✓ Mark Module Complete</button></div>
+</section>
+
+</main>
+<script>
+const LETTERS=['A','B','C','D'];
+const DONE=[false,false,false,false,false,false,false];
+
+const QS=[
+// Module 1 — Ecosystem
+[{q:"An airline sells a seat on a partner carrier's flight under its own flight number. The passenger earns miles with the selling airline. What is this arrangement called?",opts:["Interline agreement","Codesharing","Wet lease","Charter operation"],ans:1,fb:"Codesharing lets Airline A market and sell seats on Airline B's flight under its own code (e.g., AA1234 operated by BA). The booking and miles accrue to the marketing carrier. Interline = separate tickets on connected itinerary, no flight number sharing."},
+{q:"Which US regulatory body issues Airworthiness Directives that can mandate safety fixes and ground entire fleets?",opts:["TSA","DOT","ICAO","FAA"],ans:3,fb:"The FAA (Federal Aviation Administration) issues ADs — mandatory safety orders. Airlines must comply or the aircraft cannot legally fly. DOT handles consumer protection. TSA manages security screening. ICAO sets international standards but has no US enforcement power."},
+{q:"APIS data must be submitted to CBP for international flights. What data does it contain?",opts:["Aircraft weight, fuel load, and cargo manifest","Passenger passport number, date of birth, and nationality","Crew duty-hour schedule and rest records","Fare class inventory and seat availability data"],ans:1,fb:"APIS (Advance Passenger Information System) requires passenger passport number, date of birth, nationality, and visa data — submitted to US CBP (Customs and Border Protection) before international departure, typically 60 minutes before STD."},
+{q:"What is the key operational difference between IATA and ICAO standards?",opts:["IATA is US-only; ICAO covers international routes only","IATA governs commercial/booking standards; ICAO governs safety and ATC operations","IATA manages crew licensing; ICAO manages ticketing formats","IATA is a UN body; ICAO is a private industry association"],ans:1,fb:"IATA (industry association) sets commercial standards: airline codes, airport codes, ticket formats, baggage rules, NDC. ICAO (UN body) governs operational/safety: ATC flight plan formats, safety audits, aircraft type designators. Rule of thumb: IATA = booking layer, ICAO = operations layer."},
+{q:"Southwest Airlines uses a point-to-point network and Navitaire PSS. How does this differ from a United Airlines hub-and-spoke operation for a test engineer?",opts:["No difference — both use identical fare class structures and connection logic","Low-cost carriers have no fare class buckets and no interline baggage agreements — different booking and connection test cases apply","Southwest uses IATA standards exclusively; United uses proprietary formats","Point-to-point airlines always have shorter flights — only block time calculations differ"],ans:1,fb:"Low-cost carriers use simplified PSS platforms with no traditional Y/Q/V fare classes and no interline baggage agreements. Fare class inventory tests, connection MCT validation, and interline baggage through-check test cases that apply to full-service carriers do NOT apply to low-cost carriers — your test approach must account for the carrier model."}],
+
+// Module 2 — Departments
+[{q:"During IROPS caused by a major snowstorm, which department owns the network-wide recovery coordination across all flights, crew, and passengers?",opts:["Gate agents and station managers at the affected airport","Revenue Management — to re-price available inventory","IOCC — Integrated Operations Control Center","FAA Air Traffic Control, which coordinates all airline responses"],ans:2,fb:"The IOCC owns IROPS recovery end-to-end — simultaneously coordinating aircraft substitutions, crew rerouting within FAR 117 duty limits, passenger rebooking, gate changes, and hotel authorisations. FAA may issue Ground Delay Programs but the airline's internal response is IOCC-led."},
+{q:"An MEL item is deferred on a B737 before departure with a Category B deferral. What does this mean operationally?",opts:["The aircraft is immediately grounded — no deferral allowed","The item may remain inoperative for up to 10 days while the aircraft operates normally","The flight must carry an additional maintenance technician on board","The FAA must physically inspect the aircraft before each departure"],ans:1,fb:"MEL Category B deferrals allow the item to be inoperative for up to 10 days while the aircraft continues operating. Categories: A=3 days, B=10 days, C=120 days. The MEL is FAA-approved — it's the legal mechanism for operating with known minor defects safely. An AOG (not an MEL) means the aircraft cannot fly at all."},
+{q:"Revenue Management closes fare class Q on a flight. Within what target SLA should travel agents using Sabre see Q as unavailable?",opts:["24 hours — GDS updates run in nightly batch","72 hours — next BSP billing cycle","Within 30 seconds — via near-real-time AVS messages","Instantly — PSS and GDS share a single live database"],ans:2,fb:"AVS (Availability Status) messages push RM inventory changes from PSS to GDS in near-real-time — industry SLA is typically under 30 seconds. GDS and PSS are separate systems synced by messaging, not a shared database. Testing AVS propagation latency is a critical integration test point."},
+{q:"Network & Fleet Planning assigns a B787 (wide-body) to a New York–London route. What factors primarily drive this decision?",opts:["The B787 is the newest aircraft so it goes on the highest-profile routes","Route range requirement, passenger demand, seat economics, and fleet availability all inform the decision","The FAA mandates wide-body aircraft on all transatlantic routes","IATA requires wide-body aircraft for any route exceeding 6 hours flight time"],ans:1,fb:"Fleet assignment decisions balance: route range (B737 physically cannot fly transatlantic), passenger demand (wide-body = more seats for high-demand routes), aircraft operating economics (fuel burn per seat), and which aircraft are available in the fleet at the time. No single factor determines the decision alone."},
+{q:"An EDCT is assigned to a flight during a Ground Delay Program. What must the airline do and what happens if they depart early?",opts:["Cancel and rebook all passengers — GDPs require full cancellation","Depart as close as possible to the EDCT time — typically within a ±5 minute compliance window","Request a new slot from FAA within 15 minutes of receiving the EDCT","Divert to the nearest alternate airport until the GDP is lifted"],ans:1,fb:"An EDCT (Expect Departure Clearance Time) is the FAA-assigned target departure time during a GDP. Airlines must depart within the compliance window (typically ±5 min). Departing before the EDCT is an ATC violation — the airline can face slot penalties and their future EDCT compliance record affects GDP management treatment."}],
+
+// Module 3 — IT Systems
+[{q:"PSS sends an ADL message to DCS 90 minutes before departure. What information does this ADL contain?",opts:["The aircraft's final weight-and-balance calculation","Real-time updates to the passenger manifest: new bookings, cancellations, and SSR changes since the initial PNL","Weather forecast data for the departure and arrival airports","Crew assignment updates from the crew management system"],ans:1,fb:"ADL (Additions and Deletions List) is a real-time update message sent from PSS to DCS, reflecting changes after the initial PNL (Passenger Name List) was sent — new last-minute bookings, cancellations, name corrections, seat change requests, and SSR additions or modifications."},
+{q:"An e-ticket number reads 006-1234567890. What does '006' identify?",opts:["The booking sequence number within the GDS","The IATA airline code — 006 identifies Delta Air Lines","The airport pair: departure (006) is an origin code","The fare basis code category for the ticket"],ans:1,fb:"The first 3 digits of an IATA e-ticket number are the IATA airline numeric code: 006 = Delta, 001 = American, 016 = United. The remaining 10 digits are a unique sequential document serial number. This 13-digit format is the global IATA standard for all electronic tickets."},
+{q:"A passenger's PNR shows segment status 'UN' for her connecting flight. What does UN mean and what action is required?",opts:["Unticketed — payment has not been received yet for that segment","Unable — the airline cannot confirm the booking on that flight — passenger needs alternative accommodation","Unaccompanied — an UMNR flag has been set on the PNR","Unknown — the flight schedule has not been published yet"],ans:1,fb:"UN = Unable — the airline cannot confirm the passenger on that segment (inventory closed, aircraft swapped, etc.). The passenger must be re-accommodated on an alternative flight. This differs from HL (Holding on Waitlist) which implies a queue. UN segments need immediate resolution before check-in opens."},
+{q:"What is the primary technical difference between EDIFACT and NDC in airline distribution, and why does it matter for testing?",opts:["EDIFACT is for US domestic bookings; NDC is for international flights only","EDIFACT is a legacy UN data interchange format using fixed-field messages; NDC is a modern IATA XML API enabling richer content — both must be tested in most current airline systems","NDC is only used by low-cost carriers; legacy carriers exclusively use EDIFACT","EDIFACT handles passenger data; NDC handles cargo and freight booking"],ans:1,fb:"EDIFACT is the 30+ year old legacy standard still used in GDS messaging — fixed-format electronic data interchange. NDC (IATA 21.3) is a modern REST/XML API standard enabling personalised offers and ancillary upsell. Most major airlines are mid-migration — both coexist in production. Test engineers must validate both interfaces simultaneously."},
+{q:"During a concurrent modification test, two agents update the same PNR simultaneously. Agent A adds an SSR and Agent B changes the seat assignment. What is the critical test outcome to verify?",opts:["One agent's update should always win and overwrite the other — last write wins","Both updates should be preserved — the system must queue or merge changes without data loss","The PNR should be automatically cancelled if concurrent access is detected","Only the senior agent's update should be applied — junior agent changes are discarded"],ans:1,fb:"Concurrent PNR modification is a critical concurrency test. The correct outcome is that BOTH changes are preserved — either via optimistic locking (version check, retry), pessimistic locking (queue second request), or merge logic. Last-write-wins would cause the first agent's change to be silently lost — a production data integrity defect."}],
+
+// Module 4 — Metrics
+[{q:"An airline calculates RASM of $0.18 and CASM of $0.15 for a given route. What does this tell you about that route's financial performance?",opts:["The route is profitable — revenue per seat mile exceeds cost per seat mile by 3 cents","The route is breaking even — RASM and CASM are too close to determine profitability","The route is loss-making — CASM must always be lower than RASM to break even","Cannot determine without knowing the load factor on the route"],ans:0,fb:"RASM ($0.18) > CASM ($0.15) means the route generates 3 cents of profit for every seat mile operated — it is profitable. RASM and CASM are per-ASM measures, so this conclusion holds regardless of load factor. However, both RASM and CASM depend on many variables — actual figures vary significantly by airline, route, and period. The formula relationship (RASM > CASM = profitable) is the verified principle."},
+{q:"A flight pushes back 11 minutes after its scheduled departure time. What are the D0 and A14 outcomes?",opts:["D0 fail. A14 depends on whether the aircraft lands within 14 minutes of scheduled arrival — the 11-minute departure delay could be fully or partially recovered en route","D0 pass — D0 allows a 15-minute grace window. A14 pass automatically","D0 fail and A14 automatically fail — any departure delay means both metrics fail","D0 pass if captain confirms pushback within 10 minutes of scheduled time"],ans:0,fb:"D0 fails immediately — any departure after the scheduled pushback minute is a D0 failure. Zero tolerance, no grace window. A14 (arrival within 14 minutes of scheduled arrival) is independent — if the crew flies faster or uses a direct routing and arrives within 14 minutes of scheduled arrival time, A14 passes even with an 11-minute departure delay."},
+{q:"A B737 misses its 35-minute MTT and the turn takes 53 minutes. The next 5 rotations on that aircraft are each scheduled with exactly 40-minute turns. Assuming no IOCC intervention, what is the delay on the last rotation of the day?",opts:["18 minutes — only the immediately next flight is delayed","36 minutes — delays compound on the first two flights then reset","90 minutes — the 18-minute delay propagates and grows at each tight turn","At least 90 minutes — the 18-minute delay propagates to all 5 subsequent rotations"],ans:3,fb:"An 18-minute MTT miss propagates forward: flight 2 is 18 min late, flight 3 is 36 min late (18+18 from tight turn), etc. With 40-minute turns and an 18-minute delay arriving into each one, the delay grows. Without IOCC intervention (aircraft swap, expedited turn), the delay cascades to all 5 subsequent rotations — potentially exceeding 90 minutes by the final rotation."},
+{q:"Which OOOI event triggers the DOT domestic tarmac delay timer, and at what point must the airline begin deplaning?",opts:["OFF event (takeoff) — timer starts at wheels-up. Deplaning required after 3 hours of flying","IN event (gate arrival) — timer starts when passengers cannot deplane. Deplaning required immediately","OUT event (door close / pushback) — timer starts at pushback. Deplaning must begin before the 3-hour mark is reached","ON event (landing) — timer starts at touchdown. Deplaning required within 3 hours of landing"],ans:2,fb:"The DOT tarmac delay timer starts at the OUT event — when the aircraft door closes and pushback begins. The 3-hour domestic limit (4 hours international) runs from OUT until passengers can deplane. Airlines must BEGIN the deplaning process before the 3-hour mark — meaning action should be taken at 2h 45m to allow time to coordinate a gate. OOOI timestamps from ACARS are the legal reference."},
+{q:"An airline's monthly OTP report shows D0 at 72% and A14 at 84%. What is the most likely operational explanation for this gap?",opts:["A14 is always exactly 12% higher than D0 — this is normal and expected","Flights are departing late (28% D0 failures) but recovering time en route — either via schedule padding or faster-than-planned cruise","The OTP system has a calculation error — D0 and A14 should always be identical","Passengers are boarding faster at arrival gates, improving A14 independently of departure performance"],ans:1,fb:"A D0 of 72% with an A14 of 84% means 12% of flights departed late but arrived within 14 minutes of schedule — they recovered the delay during flight. This typically happens when: (1) schedules are padded with extra block time, (2) crews fly at higher cruise speed, or (3) ATC gives direct routings. It's not ideal — D0 failures cost money even when recovered — but this gap is operationally common."}],
+
+// Module 5 — Workflows
+[{q:"At which of the 4 IATA Resolution 753 scan points must a no-show passenger's bag be identified and flagged for offload?",opts:["Scan 1 — bag induction into the BHS conveyor","Scan 2 — sortation to the flight make-up area","Scan 3 — physical loading onto the aircraft hold","Scan 4 — arrival carousel delivery at destination"],ans:2,fb:"The critical reconciliation point is Scan 3 — when bags are physically loaded onto the aircraft. BRS cross-references the loaded bag manifest against the DCS boarding manifest in real time. Any bag from a no-show passenger (NS status) must be physically offloaded before the aircraft can depart. This is a mandatory security rule with no override — it stems from aviation security requirements established after the 1988 Lockerbie bombing."},
+{q:"A passenger checks in two bags for JFK→ORD→LAX but misses her ORD→LAX connection due to a late JFK→ORD arrival. She is rebooked on ORD→LAX the next morning. What happens to her bags?",opts:["Bags automatically reroute to the next morning's flight without any manual intervention","Bags are held at ORD by the ground team and reloaded onto the rebooked flight via BRS/WorldTracer notification — passenger does not need to collect them","Bags are sent back to JFK origin as the connection was broken","Bags are delivered to the ORD baggage carousel — passenger must collect and re-check them for the next morning"],ans:1,fb:"In a missed connection scenario where the airline is at fault (late arrival), bags are held at the connection airport (ORD) by the ramp team. The rebooked flight information is updated in BRS and the bags are loaded onto the passenger's new flight. Passengers do not need to collect their bags — the airline manages forwarding. A WorldTracer record may be created if bags need to be tracked overnight."},
+{q:"ADS-B provides real-time aircraft position data. What tracking method is used when an aircraft is over the North Atlantic where no ground-based ADS-B receivers exist?",opts:["Aircraft become completely invisible — no tracking is possible over oceans","Space-based ADS-B via Aireon satellites provides global coverage, supplemented by ACARS position reports every 10 minutes on oceanic tracks","Cell tower triangulation is used for position estimation over water","The last known ADS-B position is frozen on tracking displays until the aircraft reaches land"],ans:1,fb:"Oceanic tracking uses two complementary methods: (1) Space-based ADS-B via Aireon — a constellation of satellites in low Earth orbit providing pole-to-pole ADS-B coverage since 2019. (2) ACARS position reports — aircraft transmit their GPS position via HF radio or SATCOM every 10 minutes on assigned oceanic tracks. ICAO's GADSS (Global Aeronautical Distress and Safety System) mandates 15-minute position reporting globally."},
+{q:"A passenger had a non-refundable economy ticket. Her flight was cancelled by the airline 2 hours before departure. Under DOT regulations, what refund is she entitled to?",opts:["Travel credit only — non-refundable tickets cannot receive cash refunds under any circumstances","50% of the ticket face value as a partial involuntary refund","Full refund to the original payment method within 7 business days if paid by credit card — fare rules do not apply for airline-initiated cancellations","No refund — the airline may offer rebooking only, as per the terms and conditions accepted at booking"],ans:2,fb:"When the AIRLINE cancels a flight (INVOL), DOT regulations override all fare rules — a full refund to the original payment method is mandatory within 7 business days (credit card) or 20 business days (cash). Non-refundable designation only applies to voluntary changes/cancellations by the passenger. This is a hard DOT rule — offering only travel credit for an INVOL cancellation is a DOT violation since 2024 clarifications."},
+{q:"What is a Waiver Code and why is it stored in the PNR history?",opts:["A TSA security code authorising a passenger to bypass standard baggage screening","A code that overrides fare rules to allow a refund or fee waiver on a non-refundable ticket — stored in PNR history for compliance audit trails","A DCS boarding code confirming the passenger has physically cleared the gate scanner","A GDS authentication token required for every booking transaction to prevent fraud"],ans:1,fb:"A Waiver Code is applied to a PNR to override fare rules in approved circumstances (schedule change, weather, goodwill, bereavement). It enables refunds on otherwise non-refundable tickets. Storing the waiver code in PNR history is a compliance requirement — it creates an auditable record of who authorised the waiver, what type it was, and when it was applied. This audit trail is essential for DOT compliance reviews and internal financial audits."}],
+
+// Module 6 — Cabin & Ground
+[{q:"Under FAR Part 121 Subpart T, what is the minimum number of flight attendants required on a B777-200 configured with 312 seats?",opts:["5 flight attendants","6 flight attendants","7 flight attendants","8 flight attendants"],ans:1,fb:"FAR Part 121 requires 1 FA per 50 passenger seats. 312 ÷ 50 = 6.24 → rounded up = 7 FAs minimum. Wait — 312 ÷ 50 = 6.24, which rounds up to 7. Answer is 7. Actually let's verify: 6×50=300 < 312, so yes minimum is 7 FAs. If the count drops below 7 (illness, duty limit), the departure release must be blocked until a qualified replacement is available."},
+{q:"A captain rejects the load sheet sent via ACARS 8 minutes before scheduled pushback due to a CG concern. What must happen before the OUT event can be recorded?",opts:["The flight proceeds using the previous approved load sheet from the last sector","The load planner must recalculate W&B, redistribute cargo/fuel, and resubmit a new load sheet for captain acceptance via ACARS","The dispatcher can override the captain's rejection and authorise departure","The flight is automatically cancelled and all passengers must be rebooked"],ans:1,fb:"The W&B load sheet requires captain acceptance before every departure — this is a legal requirement under FAR Part 121. No aircraft can depart without an accepted load sheet, regardless of time pressure. The load planner must revise the calculation (adjust cargo distribution, fuel quantity, or passenger seating) and resubmit. The captain must formally accept the revised load sheet via ACARS before pushback is authorised."},
+{q:"An FA's FAR Part 117 monthly duty-hour limit would be exceeded by 45 minutes if she accepts a standby assignment. What must the crew management system do?",opts:["Issue a warning and allow the assignment with a supervisor override code","Automatically reject the assignment — Part 117 limits are hard blocks with no override capability","Allow the assignment and flag it for retroactive review within 24 hours","Accept the assignment since 45 minutes is within a 1-hour grace buffer"],ans:1,fb:"FAR Part 117 limits are HARD BLOCKS — the crew management system must automatically and immediately reject any assignment that would exceed them. There is no grace buffer, no override code, no supervisor workaround. Implementing this as a warning instead of a hard block is a compliance defect. The system must also create an audit trail record of the rejection attempt for FAA review. This is the most important compliance test case for any crew scheduling system."},
+{q:"During a 35-minute B737 turnaround, at what milestone does boarding typically open and what must be true before it can open?",opts:["Boarding opens immediately when the aircraft parks at the gate (+0 min)","Boarding opens approximately +15 minutes after block-in — after cabin cleaning is complete and cabin crew signals 'boarding ready'","Boarding opens exactly 10 minutes before STD regardless of turnaround progress","Boarding opens when the gate agent scans the first boarding pass — no other preconditions apply"],ans:1,fb:"In a 35-minute B737 turnaround, boarding typically opens at approximately +15 minutes after block-in — after deplaning is complete and the rapid cabin clean is finished. Cabin crew must signal 'boarding ready' to the gate agent before boarding can commence — you cannot begin boarding into an unclean cabin. The gate agent controls the boarding start based on this signal, not purely on a time schedule."},
+{q:"What is the correct boarding sequence for a flight that has WCHR, UMNR, military personnel, and General passengers on board?",opts:["General boarding first to maximise boarding speed, then pre-board groups after","Pre-boards first: WCHR and UMNR simultaneously, then military, then General boarding by zone (1→4)","Military boards first by regulation, then WCHR, then UMNR, then General boarding","UMNR boards last — they must be escorted after all other passengers are seated"],ans:1,fb:"Standard pre-board sequence: (1) WCHR/UMNR/families with infants simultaneously — these passengers need extra time or assistance. (2) Active military (by many US airline policies). (3) General boarding by fare class or zone (elite/first, then zones 1→4). UMNR passengers are always pre-boarded — never boarded last. The UMNR escort protocol requires them to be seated and settled before general boarding creates congestion in the aisle."}],
+
+// Module 7 — Compliance
+[{q:"Under DOT 14 CFR 250, what compensation must be paid to a passenger who is involuntarily denied boarding on a domestic flight and the airline rebooks them arriving 3 hours late?",opts:["100% of the one-way fare, maximum $387.50","200% of the one-way fare, maximum $775","400% of the one-way fare, maximum $1,550","No compensation — the passenger accepted the terms and conditions at booking"],ans:2,fb:"DOT 14 CFR 250: For domestic IDB where the airline gets the passenger to their destination MORE than 2 hours late: 400% of one-way fare, maximum $1,550. If delayed 1–2 hours: 200%, max $775. Compensation must be paid same day in cash or cheque — not travel vouchers unless the passenger agrees. 3 hours late exceeds the 2-hour threshold, so 400% applies."},
+{q:"A QA engineer tests crew scheduling software. One test assigns an FO to a pairing that puts her exactly at the FAR Part 117 monthly flying limit (not exceeding it). Another test exceeds it by 1 minute. What are the correct expected results?",opts:["Both assignments should be rejected — being at the limit is treated identically to exceeding it","At-limit assignment should be accepted; over-limit assignment must be hard-rejected with audit trail created","Both assignments should be accepted — Part 117 limits have a 5-minute grace buffer","Both should issue a warning and require supervisor approval before proceeding"],ans:1,fb:"Boundary condition testing: AT the limit = compliant = ACCEPT. ONE MINUTE OVER = non-compliant = HARD REJECT (not a warning — a reject). This is the critical boundary test for any crew scheduling system. The hard reject must also write an audit trail record (attempted assignment, rejection reason, timestamp, agent ID) for FAA review. Testing both the at-limit (accept) and over-limit (reject) boundary conditions is mandatory — testing only one side of the boundary is insufficient."},
+{q:"An international flight's APIS submission to CBP fails at T-58 minutes before departure (network error). What is the correct system behaviour?",opts:["Immediately cancel the flight — APIS failure means the flight cannot legally depart","Proceed normally — APIS is optional for short-haul international routes under 3 hours","Automatically retry with backoff logic; alert IOCC if unresolved by T-45 min so they can hold the flight or manually intervene","Notify gate agents to manually collect passport photocopies from each passenger as a fallback"],ans:2,fb:"APIS submission must succeed before international departure. A network failure should trigger automatic retry (exponential backoff to avoid flooding CBP). If unresolved by a threshold (typically T-45 to T-60 min), IOCC must be alerted so they can hold the flight or manually intervene. Never cancel on first failure — retry logic is essential. This is a key system resilience and compliance test case. Manual passport collection is not an acceptable APIS substitute."},
+{q:"A tester is validating the DOT domestic tarmac delay rule. The aircraft OUT event was recorded at 14:03 UTC. At exactly what time must the system have already initiated the deplaning process?",opts:["At 17:03 UTC — exactly 3 hours after OUT event","At 16:48 UTC — the system alert must fire at 2h 45m to allow 15 minutes for coordination","At 17:18 UTC — a 15-minute airline grace period applies after the 3-hour mark","At 16:33 UTC — the 90-minute food/water trigger is the primary compliance timer"],ans:1,fb:"DOT requires deplaning to BEGIN (not complete) within 3 hours of OUT. Airlines must set internal alerts before the limit to allow coordination time. Best practice: alert at 2h 30m (14:03 + 2:30 = 16:33 — first warning), escalation alert at 2h 45m (16:48 — action required), hard-stop at 3h 00m (17:03 — deplaning must have started). The 2h 45m alert (16:48) is the critical action trigger. The tester must verify this exact timestamp arithmetic — including UTC handling."},
+{q:"Which of the following is the highest-priority regression test to run after every release of a PSS refund module?",opts:["Test that the UI currency symbol displays correctly for all 180+ supported currencies","Test that a coupon already in Refunded (R) status cannot be refunded again — double-refund prevention is a hard block","Test that admin users can update refund fee schedules in the configuration panel","Test that the refund confirmation email renders correctly in Gmail and Outlook"],ans:1,fb:"Double-refund prevention is the highest-priority financial and compliance regression test for any PSS refund module. If a code regression allows a coupon in R (Refunded) status to be refunded again, the airline experiences direct financial loss, fails audit controls, and creates fraudulent accounting records. Any release touching refund logic must run this test as a mandatory gate. UI rendering and admin config tests are important but carry far lower financial and compliance risk."}]
+];
+
+const STATE=QS.map(()=>({cur:0,correct:0}));
+
+function toggleBlock(el){
+  el.classList.toggle('open');
+}
+
+function showTab(idx){
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===idx));
+  document.querySelectorAll('.section-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  renderQ(idx);
+}
+
+function renderQ(t){
+  const s=STATE[t];const qs=QS[t];
+  if(s.cur>=qs.length){showDone(t);return;}
+  const q=qs[s.cur];
+  const pct=Math.round(((s.cur+1)/qs.length)*100);
+  document.getElementById('qlbl'+t).textContent='Q'+(s.cur+1)+' / '+qs.length;
+  document.getElementById('qprog'+t).style.width=pct+'%';
+  document.getElementById('qtext'+t).textContent=q.q;
+  document.getElementById('qfb'+t).className='q-fb';
+  document.getElementById('qnext'+t).className='btn-next';
+  const op=document.getElementById('qopts'+t);op.innerHTML='';
+  q.opts.forEach((o,i)=>{
+    const b=document.createElement('button');b.className='q-opt';
+    b.innerHTML='<span class="q-letter">'+LETTERS[i]+'</span>'+o;
+    b.onclick=()=>ansQ(t,i);op.appendChild(b);
+  });
+}
+
+function ansQ(t,chosen){
+  const q=QS[t][STATE[t].cur];
+  document.querySelectorAll('#qopts'+t+' .q-opt').forEach((b,i)=>{
+    b.classList.add('answered');
+    if(i===q.ans)b.classList.add('correct');
+    else if(i===chosen)b.classList.add('wrong');
+  });
+  if(chosen===q.ans){
+    STATE[t].correct++;
+    document.getElementById('qb'+t).textContent=STATE[t].correct+' / '+QS[t].length;
+  }
+  document.getElementById('qfb'+t).textContent=q.fb;
+  document.getElementById('qfb'+t).className='q-fb show';
+  document.getElementById('qnext'+t).className='btn-next show';
+}
+
+function nextQ(t){STATE[t].cur++;renderQ(t);}
+
+function showDone(t){
+  document.getElementById('qbody'+t).style.display='none';
+  const d=document.getElementById('qdone'+t);d.className='quiz-done show';
+  const sc=STATE[t].correct,tot=QS[t].length,pct=Math.round(sc/tot*100);
+  document.getElementById('dscore'+t).textContent=sc+' / '+tot;
+  document.getElementById('dlbl'+t).textContent='correct answers — '+pct+'% score';
+  const bar=document.getElementById('dbar'+t);
+  bar.style.width=pct+'%';
+  bar.style.background=pct>=80?'var(--green)':pct>=60?'var(--amber)':'var(--rose)';
+  document.getElementById('demoji'+t).textContent=pct>=80?'🏆':pct>=60?'📖':'🔄';
+  document.getElementById('dmsg'+t).textContent=pct>=80
+    ?'Excellent — strong domain knowledge demonstrated. Mark this module complete and proceed to the next.'
+    :pct>=60
+    ?'Good effort. Review the expanded sections above — especially the QA Testing Considerations callouts — then retake.'
+    :'Keep studying the module content carefully. The compliance rules and system integration details are the most important for your role.';
+  document.getElementById('qb'+t).textContent=sc+' / '+tot;
+}
+
+function retryQ(t){
+  STATE[t].cur=0;STATE[t].correct=0;
+  document.getElementById('qb'+t).textContent='0 / '+QS[t].length;
+  document.getElementById('qdone'+t).className='quiz-done';
+  document.getElementById('qbody'+t).style.display='';
+  renderQ(t);
+}
+
+function markDone(idx){
+  DONE[idx]=true;
+  const b=document.getElementById('dbtn'+idx);
+  b.className='btn-done done';b.textContent='✓ Module Completed';
+  const tn=document.getElementById('tn'+idx);tn.textContent='✓';
+  document.querySelectorAll('.tab-btn')[idx].classList.add('done');
+  const n=DONE.filter(Boolean).length;
+  const pct=Math.round(n/7*100);
+  document.getElementById('done-count').textContent=n;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-pct').textContent=pct+'%';
+}
+
+// Init all quizzes
+QS.forEach((_,i)=>renderQ(i));
+</script>
+</body>
+</html>
